@@ -106,4 +106,4 @@ WoodStreamPLAZAApp/
 
 ## 📄 ライセンス
 
-Copyright © 2026 WoodStream. All rights reserved.
+Copyright © 2026 WoodStream Networks Tomokazu Kizawa. All rights reserved.
