@@ -1,0 +1,21 @@
+# Visual Studio & .NET Build Artifacts
+bin/
+obj/
+/publish/
+/dist/
+[Bb]uild/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+
+# Application Specific Folders required by rules
+/Installer/
+/MSIX/
+
+# Temporary and Cache
+*.log
+*.tmp
+TestResults/

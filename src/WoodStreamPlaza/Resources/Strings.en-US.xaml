@@ -1,0 +1,44 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="App_Title">WoodStream PLAZA</sys:String>
+    <sys:String x:Key="Nav_Back">Back</sys:String>
+    <sys:String x:Key="Nav_Forward">Forward</sys:String>
+    <sys:String x:Key="Nav_Reload">Reload</sys:String>
+    <sys:String x:Key="Nav_Home">Home</sys:String>
+    <sys:String x:Key="Nav_Rooms">Rooms</sys:String>
+    <sys:String x:Key="Nav_Notice">📢 Announcements</sys:String>
+    <sys:String x:Key="Nav_Lounge">🛋️ Lounge</sys:String>
+    <sys:String x:Key="Nav_Episodes">📻 Episodes</sys:String>
+    <sys:String x:Key="Nav_Entertainment">📺 Entertainment</sys:String>
+    <sys:String x:Key="Nav_Gourmet">🍜 Gourmet &amp; Life</sys:String>
+    <sys:String x:Key="Nav_AiArt">🎨 AI Arts</sys:String>
+    <sys:String x:Key="Nav_ZoomIn">Zoom In</sys:String>
+    <sys:String x:Key="Nav_ZoomOut">Zoom Out</sys:String>
+    <sys:String x:Key="Nav_ZoomReset">Reset</sys:String>
+    <sys:String x:Key="Nav_Settings">Settings</sys:String>
+    
+    <sys:String x:Key="Tray_Open">Open WoodStream PLAZA</sys:String>
+    <sys:String x:Key="Tray_Settings">Settings...</sys:String>
+    <sys:String x:Key="Tray_Exit">Exit</sys:String>
+    
+    <sys:String x:Key="Settings_Title">Settings - WoodStream PLAZA</sys:String>
+    <sys:String x:Key="Settings_General">General Settings</sys:String>
+    <sys:String x:Key="Settings_Language">Display Language</sys:String>
+    <sys:String x:Key="Settings_Language_Auto">Follow Windows language (Auto)</sys:String>
+    <sys:String x:Key="Settings_Language_Ja">Japanese</sys:String>
+    <sys:String x:Key="Settings_Language_En">English</sys:String>
+    <sys:String x:Key="Settings_StartUrl">Startup URL</sys:String>
+    <sys:String x:Key="Settings_Behavior">Window &amp; Background Behavior</sys:String>
+    <sys:String x:Key="Settings_MinimizeToTray">Minimize to system tray on window minimize</sys:String>
+    <sys:String x:Key="Settings_CloseToTray">Keep in system tray when closing window</sys:String>
+    <sys:String x:Key="Settings_ShowNavBar">Show top quick navigation bar</sys:String>
+    <sys:String x:Key="Settings_ClearCache">Cache Management</sys:String>
+    <sys:String x:Key="Settings_ClearCache_Desc">Clear cache if you experience issues with login or cached content.</sys:String>
+    <sys:String x:Key="Settings_ClearCache_Btn">Clear Browser Cache</sys:String>
+    <sys:String x:Key="Settings_ClearCache_Done">Browser cache has been cleared successfully.</sys:String>
+    <sys:String x:Key="Settings_Save">Save</sys:String>
+    <sys:String x:Key="Settings_Cancel">Cancel</sys:String>
+
+</ResourceDictionary>

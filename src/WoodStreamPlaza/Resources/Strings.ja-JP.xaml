@@ -1,0 +1,44 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="App_Title">WoodStream PLAZA</sys:String>
+    <sys:String x:Key="Nav_Back">戻る</sys:String>
+    <sys:String x:Key="Nav_Forward">進む</sys:String>
+    <sys:String x:Key="Nav_Reload">更新</sys:String>
+    <sys:String x:Key="Nav_Home">ホーム</sys:String>
+    <sys:String x:Key="Nav_Rooms">ルーム切替</sys:String>
+    <sys:String x:Key="Nav_Notice">📢 お知らせ</sys:String>
+    <sys:String x:Key="Nav_Lounge">🛋️ ラウンジ</sys:String>
+    <sys:String x:Key="Nav_Episodes">📻 番組感想</sys:String>
+    <sys:String x:Key="Nav_Entertainment">📺 エンタメ</sys:String>
+    <sys:String x:Key="Nav_Gourmet">🍜 食テロ・日常</sys:String>
+    <sys:String x:Key="Nav_AiArt">🎨 AI生成画像</sys:String>
+    <sys:String x:Key="Nav_ZoomIn">拡大</sys:String>
+    <sys:String x:Key="Nav_ZoomOut">縮小</sys:String>
+    <sys:String x:Key="Nav_ZoomReset">リセット</sys:String>
+    <sys:String x:Key="Nav_Settings">設定</sys:String>
+    
+    <sys:String x:Key="Tray_Open">WoodStream PLAZA を開く</sys:String>
+    <sys:String x:Key="Tray_Settings">設定...</sys:String>
+    <sys:String x:Key="Tray_Exit">終了</sys:String>
+    
+    <sys:String x:Key="Settings_Title">設定 - WoodStream PLAZA</sys:String>
+    <sys:String x:Key="Settings_General">全般設定</sys:String>
+    <sys:String x:Key="Settings_Language">表示言語</sys:String>
+    <sys:String x:Key="Settings_Language_Auto">Windowsの表示言語に従う (自動)</sys:String>
+    <sys:String x:Key="Settings_Language_Ja">日本語 (Japanese)</sys:String>
+    <sys:String x:Key="Settings_Language_En">英語 (English)</sys:String>
+    <sys:String x:Key="Settings_StartUrl">起動時URL</sys:String>
+    <sys:String x:Key="Settings_Behavior">ウィンドウと常駐の動作</sys:String>
+    <sys:String x:Key="Settings_MinimizeToTray">ウィンドウ最小化時にタスクトレイに格納する</sys:String>
+    <sys:String x:Key="Settings_CloseToTray">「閉じる」ボタンで終了せずタスクトレイに常駐する</sys:String>
+    <sys:String x:Key="Settings_ShowNavBar">上部クイックナビゲーションバーを表示する</sys:String>
+    <sys:String x:Key="Settings_ClearCache">キャッシュ管理</sys:String>
+    <sys:String x:Key="Settings_ClearCache_Desc">ログイン状態や一時キャッシュに問題がある場合にクリアできます。</sys:String>
+    <sys:String x:Key="Settings_ClearCache_Btn">ブラウザキャッシュをクリア</sys:String>
+    <sys:String x:Key="Settings_ClearCache_Done">ブラウザキャッシュを正常にクリアしました。</sys:String>
+    <sys:String x:Key="Settings_Save">保存</sys:String>
+    <sys:String x:Key="Settings_Cancel">キャンセル</sys:String>
+
+</ResourceDictionary>
