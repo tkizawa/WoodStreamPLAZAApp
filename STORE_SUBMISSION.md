@@ -60,12 +60,11 @@ MSIX/
 ---
 
 ### ステップ 3: プロパティ (Properties) の設定
-1. **カテゴリ**: `ソーシャル` または `ニュース & 天気`、あるいは `ユーティリティ & ツール`
-2. **プライバシー ポリシーの URL**:
-   - 例: `https://github.com/tkizawa/WoodStreamPLAZAApp/blob/main/README.md`
-   - （または公式サイトのプライバシーポリシーページURL）
-3. **Web サイト**: 公式サイトまたは GitHub リポジトリ URL
-4. **サポート連絡先情報**: 問い合わせ用メールアドレスまたは Web フォーム URL
+1. **カテゴリ**: `ソーシャル` ＞ `コミュニティ`（または `ソーシャル ネットワーク`）
+2. **プライバシー ポリシーの URL (Privacy policy URL)**:
+   - **`https://github.com/tkizawa/WoodStreamPLAZAApp/blob/main/PRIVACY.md`**
+3. **Web サイト**: `https://windows-podcast.com/plaza/` または GitHub リポジトリ URL
+4. **サポート連絡先情報**: 問い合わせ用メールアドレスまたは Web フォーム URL (GitHub Issues 等)
 5. **「保存」** をクリックします。
 
 ---
