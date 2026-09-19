@@ -12,22 +12,25 @@ public partial class App : WpfApplication
 {
     protected override void OnStartup(StartupEventArgs e)
     {
+        Logger.Info("Application OnStartup started.");
         base.OnStartup(e);
 
         // 未処理例外ハンドリング
         AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
         {
-            System.Diagnostics.Debug.WriteLine($"AppDomain UnhandledException: {args.ExceptionObject}");
+            Logger.Info($"AppDomain UnhandledException: {args.ExceptionObject}");
         };
 
         DispatcherUnhandledException += (sender, args) =>
         {
-            System.Diagnostics.Debug.WriteLine($"DispatcherUnhandledException: {args.Exception.Message}");
+            Logger.Info($"DispatcherUnhandledException: {args.Exception.Message}\n{args.Exception.StackTrace}");
             args.Handled = true;
         };
 
         // 設定のロードおよび言語の適用
         var settings = SettingsService.Instance.CurrentSettings;
+        Logger.Info($"Settings loaded. StartUrl: {settings.StartUrl}, Language: {settings.Language}");
         LocalizationService.Instance.ApplyLanguage(settings.Language);
+        Logger.Info("Language applied.");
     }
 }

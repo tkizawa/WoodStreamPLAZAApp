@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
 using WoodStreamPlaza.Services;
 using WpfMessageBox = System.Windows.MessageBox;
 
@@ -16,6 +17,7 @@ public partial class MainWindow : Window
 
     public MainWindow()
     {
+        Logger.Info("MainWindow constructor starting.");
         InitializeComponent();
 
         // 終了時ウィンドウ位置およびサイズの復元 (グローバル規約)
@@ -25,12 +27,22 @@ public partial class MainWindow : Window
         UpdateNavBarVisibility();
 
         // トレイアイコンの初期化
-        TrayService.Instance.Initialize(this, OpenSettingsWindow);
+        try
+        {
+            TrayService.Instance.Initialize(this, OpenSettingsWindow);
+            Logger.Info("TrayService initialized.");
+        }
+        catch (Exception ex)
+        {
+            Logger.Info($"TrayService initialization failed: {ex.Message}");
+        }
 
         // イベント購読
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
         StateChanged += MainWindow_StateChanged;
+
+        Logger.Info("MainWindow constructor completed.");
     }
 
     /// <summary>
@@ -38,6 +50,7 @@ public partial class MainWindow : Window
     /// </summary>
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        Logger.Info("MainWindow_Loaded event fired.");
         await InitializeWebViewAsync();
     }
 
@@ -48,17 +61,45 @@ public partial class MainWindow : Window
     {
         try
         {
-            // グローバル規約: AppData\Local\WoodStreamPlaza へのデータ配置
+            Logger.Info("InitializeWebViewAsync started.");
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string userDataFolder = Path.Combine(localAppData, "WoodStreamPlaza", "WebView2Data");
+            if (!Directory.Exists(userDataFolder))
+            {
+                Directory.CreateDirectory(userDataFolder);
+            }
 
-            var env = await CoreWebView2Environment.CreateAsync(userDataFolder: userDataFolder);
-            await MainWebView.EnsureCoreWebView2Async(env);
+            Logger.Info($"UserDataFolder: {userDataFolder}");
+
+            // CreationProperties による初期化設定
+            MainWebView.CreationProperties = new CoreWebView2CreationProperties
+            {
+                UserDataFolder = userDataFolder
+            };
+
+            // CoreWebView2初期化完了イベント
+            MainWebView.CoreWebView2InitializationCompleted += (s, args) =>
+            {
+                if (args.IsSuccess)
+                {
+                    Logger.Info("CoreWebView2InitializationCompleted: Success!");
+                    MainWebView.CoreWebView2.Settings.IsStatusBarEnabled = false;
+                }
+                else
+                {
+                    Logger.Info($"CoreWebView2InitializationCompleted failed: {args.InitializationException?.Message}");
+                }
+            };
 
             // イベントハンドラ登録
-            MainWebView.NavigationStarting += (s, args) => LoadingProgressBar.Visibility = Visibility.Visible;
+            MainWebView.NavigationStarting += (s, args) =>
+            {
+                Logger.Info($"NavigationStarting: {args.Uri}");
+                LoadingProgressBar.Visibility = Visibility.Visible;
+            };
             MainWebView.NavigationCompleted += (s, args) =>
             {
+                Logger.Info($"NavigationCompleted: IsSuccess={args.IsSuccess}");
                 LoadingProgressBar.Visibility = Visibility.Collapsed;
                 UpdateNavigationButtons();
             };
@@ -68,13 +109,19 @@ public partial class MainWindow : Window
                 ZoomLevelButton.Content = $"{Math.Round(MainWebView.ZoomFactor * 100)}%";
             };
 
+            Logger.Info("Calling EnsureCoreWebView2Async...");
+            await MainWebView.EnsureCoreWebView2Async();
+            Logger.Info("EnsureCoreWebView2Async completed.");
+
             // 起動URLのロード
             var settings = SettingsService.Instance.CurrentSettings;
             string startUrl = string.IsNullOrWhiteSpace(settings.StartUrl) ? "https://windows-podcast.com/plaza/" : settings.StartUrl;
+            Logger.Info($"Setting Source to: {startUrl}");
             MainWebView.Source = new Uri(startUrl);
         }
         catch (Exception ex)
         {
+            Logger.Info($"InitializeWebViewAsync EXCEPTION: {ex.Message}\n{ex.StackTrace}");
             WpfMessageBox.Show(this, $"WebView2の初期化に失敗しました: {ex.Message}", "WoodStream PLAZA", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -105,6 +152,7 @@ public partial class MainWindow : Window
     private void RestoreWindowBounds()
     {
         var settings = SettingsService.Instance.CurrentSettings;
+        Logger.Info($"Restoring window bounds. W:{settings.WindowWidth}, H:{settings.WindowHeight}, L:{settings.WindowLeft}, T:{settings.WindowTop}, State:{settings.WindowState}");
 
         // 幅・高さの復元
         if (settings.WindowWidth >= MinWidth)
@@ -122,7 +170,6 @@ public partial class MainWindow : Window
             double left = settings.WindowLeft.Value;
             double top = settings.WindowTop.Value;
 
-            // 仮想スクリーン全体（マルチモニタ含む）の範囲内にあるか検証
             double virtualLeft = SystemParameters.VirtualScreenLeft;
             double virtualTop = SystemParameters.VirtualScreenTop;
             double virtualWidth = SystemParameters.VirtualScreenWidth;
@@ -169,7 +216,6 @@ public partial class MainWindow : Window
         }
         else
         {
-            // 最大化や最小化時の場合は RestoreBounds から通常時のサイズを取得
             Rect restoreBounds = RestoreBounds;
             if (!restoreBounds.IsEmpty)
             {
@@ -182,6 +228,7 @@ public partial class MainWindow : Window
         }
 
         SettingsService.Instance.Save();
+        Logger.Info("Window bounds saved.");
     }
 
     #endregion
@@ -191,8 +238,10 @@ public partial class MainWindow : Window
     private void MainWindow_StateChanged(object? sender, EventArgs e)
     {
         var settings = SettingsService.Instance.CurrentSettings;
+        Logger.Info($"WindowState changed to: {WindowState}");
         if (WindowState == WindowState.Minimized && settings.MinimizeToTray)
         {
+            Logger.Info("Hiding window to system tray.");
             Hide();
         }
     }
@@ -200,6 +249,7 @@ public partial class MainWindow : Window
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         var settings = SettingsService.Instance.CurrentSettings;
+        Logger.Info($"MainWindow_Closing. CloseToTray={settings.CloseToTray}, ExplicitExit={_isExplicitExit}");
 
         if (!_isExplicitExit && settings.CloseToTray)
         {
@@ -239,14 +289,10 @@ public partial class MainWindow : Window
         MainWebView.Source = new Uri(startUrl);
     }
 
-    /// <summary>
-    /// Webページ内の特定ルームをクリックして切り替えるヘルパー
-    /// </summary>
     private async void SwitchRoom(string roomId)
     {
         if (MainWebView.CoreWebView2 == null) return;
 
-        // Webページ内のルーム切替ボタンを安全にクリック
         string script = $@"
             (() => {{
                 const targetBtn = document.querySelector('[data-room=""{roomId}""]');
@@ -261,7 +307,6 @@ public partial class MainWindow : Window
         try
         {
             string result = await MainWebView.ExecuteScriptAsync(script);
-            // まだページが読み込まれていないか、別のページにいる場合はトップページへ遷移
             if (result == "false" || result == "null")
             {
                 MainWebView.Source = new Uri("https://windows-podcast.com/plaza/");
