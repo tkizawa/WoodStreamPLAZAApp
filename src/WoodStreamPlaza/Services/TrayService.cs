@@ -104,8 +104,11 @@ public class TrayService : IDisposable
             _mainWindow.WindowState = WindowState.Normal;
         }
 
+        // 最前面に強制アクティブ化
+        _mainWindow.Topmost = true;
         _mainWindow.Activate();
         _mainWindow.Focus();
+        _mainWindow.Topmost = false;
     }
 
     /// <summary>
