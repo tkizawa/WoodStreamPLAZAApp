@@ -1,5 +1,7 @@
 using System;
-using System.Threading;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using WoodStreamPlaza.Services;
 using WpfApplication = System.Windows.Application;
@@ -7,57 +9,55 @@ using WpfApplication = System.Windows.Application;
 namespace WoodStreamPlaza;
 
 /// <summary>
-/// アプリケーションのエントリおよびライフサイクル管理（多重起動防止＆前面復帰対応）
+/// アプリケーションのエントリおよびライフサイクル管理
 /// </summary>
 public partial class App : WpfApplication
 {
-    private const string AppUniqueId = "WoodStreamPlaza_Unique_App_Mutex_2026";
-    private const string WakeupEventName = "WoodStreamPlaza_Wakeup_Event_2026";
+    [DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-    private Mutex? _singleInstanceMutex;
-    private EventWaitHandle? _wakeupEvent;
-    private Thread? _wakeupThread;
-    private bool _isStopping = false;
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    private const int SW_RESTORE = 9;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         Logger.Info("Application OnStartup started.");
 
-        // 多重起動の検知
-        _singleInstanceMutex = new Mutex(true, AppUniqueId, out bool isNewInstance);
+        // 既存プロセスの安全な多重起動チェック
+        var currentProcess = Process.GetCurrentProcess();
+        var runningProcesses = Process.GetProcessesByName(currentProcess.ProcessName);
 
-        if (!isNewInstance)
+        Process? otherProcess = null;
+        foreach (var p in runningProcesses)
         {
-            Logger.Info("Another instance is already running. Signaling wakeup event and exiting.");
+            if (p.Id != currentProcess.Id)
+            {
+                otherProcess = p;
+                break;
+            }
+        }
+
+        if (otherProcess != null)
+        {
+            Logger.Info($"Existing process found (PID: {otherProcess.Id}). Bringing it to foreground and exiting.");
             try
             {
-                // 既存のインスタンスに起床シグナルを送信
-                using var existingEvent = EventWaitHandle.OpenExisting(WakeupEventName);
-                existingEvent.Set();
+                IntPtr hWnd = otherProcess.MainWindowHandle;
+                if (hWnd != IntPtr.Zero)
+                {
+                    ShowWindow(hWnd, SW_RESTORE);
+                    SetForegroundWindow(hWnd);
+                }
             }
             catch (Exception ex)
             {
-                Logger.Info($"Failed to signal wakeup event: {ex.Message}");
+                Logger.Info($"Error bringing window to foreground: {ex.Message}");
             }
 
-            // 二重起動したプロセスは即座に終了
             Shutdown();
             return;
-        }
-
-        // 新規インスタンス：起床イベントを作成して待機スレッドを開始
-        try
-        {
-            _wakeupEvent = new EventWaitHandle(false, EventResetMode.AutoReset, WakeupEventName);
-            _wakeupThread = new Thread(ListenForWakeup)
-            {
-                IsBackground = true
-            };
-            _wakeupThread.Start();
-        }
-        catch (Exception ex)
-        {
-            Logger.Info($"Failed to create wakeup event: {ex.Message}");
         }
 
         base.OnStartup(e);
@@ -79,47 +79,5 @@ public partial class App : WpfApplication
         Logger.Info($"Settings loaded. StartUrl: {settings.StartUrl}, Language: {settings.Language}");
         LocalizationService.Instance.ApplyLanguage(settings.Language);
         Logger.Info("Language applied.");
-    }
-
-    /// <summary>
-    /// 別プロセスからの起動シグナルを受信した際にメインウィンドウを画面前面に復帰させます
-    /// </summary>
-    private void ListenForWakeup()
-    {
-        while (!_isStopping && _wakeupEvent != null)
-        {
-            try
-            {
-                if (_wakeupEvent.WaitOne())
-                {
-                    if (_isStopping) break;
-
-                    Logger.Info("Wakeup signal received! Restoring main window to foreground.");
-                    Dispatcher.Invoke(() =>
-                    {
-                        TrayService.Instance.ShowMainWindow();
-                    });
-                }
-            }
-            catch
-            {
-                break;
-            }
-        }
-    }
-
-    protected override void OnExit(ExitEventArgs e)
-    {
-        _isStopping = true;
-        try
-        {
-            _wakeupEvent?.Set();
-            _wakeupEvent?.Dispose();
-            _singleInstanceMutex?.ReleaseMutex();
-            _singleInstanceMutex?.Dispose();
-        }
-        catch { }
-
-        base.OnExit(e);
     }
 }

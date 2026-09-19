@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows;
@@ -29,34 +30,51 @@ public class TrayService : IDisposable
         _mainWindow = mainWindow;
         _onOpenSettings = onOpenSettings;
 
-        _notifyIcon = new NotifyIcon();
-
-        // アイコンの設定 (実行ディレクトリまたは埋め込みから)
         try
         {
-            string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
-            if (File.Exists(iconPath))
+            _notifyIcon = new NotifyIcon();
+
+            // アイコンの設定 (安全な取得)
+            Icon? icon = null;
+            try
             {
-                _notifyIcon.Icon = new Icon(iconPath);
+                string exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "";
+                if (File.Exists(exePath))
+                {
+                    icon = Icon.ExtractAssociatedIcon(exePath);
+                }
             }
-            else
+            catch { }
+
+            if (icon == null)
             {
-                _notifyIcon.Icon = SystemIcons.Application;
+                try
+                {
+                    string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+                    if (File.Exists(iconPath))
+                    {
+                        icon = new Icon(iconPath);
+                    }
+                }
+                catch { }
             }
+
+            _notifyIcon.Icon = icon ?? SystemIcons.Application;
+            _notifyIcon.Text = "WoodStream PLAZA";
+            _notifyIcon.Visible = true;
+
+            // ダブルクリックでウィンドウ復元
+            _notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
+
+            // コンテキストメニュー構築
+            UpdateContextMenu();
+
+            Logger.Info("TrayIcon successfully initialized and Visible=true.");
         }
-        catch
+        catch (Exception ex)
         {
-            _notifyIcon.Icon = SystemIcons.Application;
+            Logger.Info($"TrayService.Initialize error: {ex.Message}");
         }
-
-        _notifyIcon.Text = "WoodStream PLAZA";
-        _notifyIcon.Visible = true;
-
-        // ダブルクリックでウィンドウ復元
-        _notifyIcon.DoubleClick += (s, e) => ShowMainWindow();
-
-        // コンテキストメニュー構築
-        UpdateContextMenu();
     }
 
     /// <summary>
@@ -66,25 +84,32 @@ public class TrayService : IDisposable
     {
         if (_notifyIcon == null) return;
 
-        var menu = new ContextMenuStrip();
+        try
+        {
+            var menu = new ContextMenuStrip();
 
-        string openText = LocalizationService.Instance.GetString("Tray_Open");
-        string settingsText = LocalizationService.Instance.GetString("Tray_Settings");
-        string exitText = LocalizationService.Instance.GetString("Tray_Exit");
+            string openText = LocalizationService.Instance.GetString("Tray_Open");
+            string settingsText = LocalizationService.Instance.GetString("Tray_Settings");
+            string exitText = LocalizationService.Instance.GetString("Tray_Exit");
 
-        var openItem = new ToolStripMenuItem(openText, null, (s, e) => ShowMainWindow());
-        openItem.Font = new Font(openItem.Font, System.Drawing.FontStyle.Bold);
+            var openItem = new ToolStripMenuItem(openText, null, (s, e) => ShowMainWindow());
+            openItem.Font = new Font(openItem.Font, System.Drawing.FontStyle.Bold);
 
-        var settingsItem = new ToolStripMenuItem(settingsText, null, (s, e) => _onOpenSettings?.Invoke());
-        var exitItem = new ToolStripMenuItem(exitText, null, (s, e) => ExitApplication());
+            var settingsItem = new ToolStripMenuItem(settingsText, null, (s, e) => _onOpenSettings?.Invoke());
+            var exitItem = new ToolStripMenuItem(exitText, null, (s, e) => ExitApplication());
 
-        menu.Items.Add(openItem);
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(settingsItem);
-        menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add(exitItem);
+            menu.Items.Add(openItem);
+            menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add(settingsItem);
+            menu.Items.Add(new ToolStripSeparator());
+            menu.Items.Add(exitItem);
 
-        _notifyIcon.ContextMenuStrip = menu;
+            _notifyIcon.ContextMenuStrip = menu;
+        }
+        catch (Exception ex)
+        {
+            Logger.Info($"UpdateContextMenu error: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -94,21 +119,27 @@ public class TrayService : IDisposable
     {
         if (_mainWindow == null) return;
 
-        if (!_mainWindow.IsVisible)
+        try
         {
-            _mainWindow.Show();
-        }
+            if (!_mainWindow.IsVisible)
+            {
+                _mainWindow.Show();
+            }
 
-        if (_mainWindow.WindowState == WindowState.Minimized)
+            if (_mainWindow.WindowState == WindowState.Minimized)
+            {
+                _mainWindow.WindowState = WindowState.Normal;
+            }
+
+            _mainWindow.Topmost = true;
+            _mainWindow.Activate();
+            _mainWindow.Focus();
+            _mainWindow.Topmost = false;
+        }
+        catch (Exception ex)
         {
-            _mainWindow.WindowState = WindowState.Normal;
+            Logger.Info($"ShowMainWindow error: {ex.Message}");
         }
-
-        // 最前面に強制アクティブ化
-        _mainWindow.Topmost = true;
-        _mainWindow.Activate();
-        _mainWindow.Focus();
-        _mainWindow.Topmost = false;
     }
 
     /// <summary>
