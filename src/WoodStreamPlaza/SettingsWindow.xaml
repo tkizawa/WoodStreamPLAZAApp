@@ -50,6 +50,7 @@
                         <TextBlock Text="{DynamicResource Settings_Behavior}" FontWeight="SemiBold" FontSize="13" Foreground="#1E293B" Margin="0,0,0,8" />
                         <CheckBox x:Name="MinimizeToTrayCheckBox" Content="{DynamicResource Settings_MinimizeToTray}" Margin="0,4" />
                         <CheckBox x:Name="CloseToTrayCheckBox" Content="{DynamicResource Settings_CloseToTray}" Margin="0,4" />
+                        <CheckBox x:Name="EnableNotificationsCheckBox" Content="{DynamicResource Settings_EnableNotifications}" Margin="0,4" />
                         <CheckBox x:Name="ShowNavBarCheckBox" Content="{DynamicResource Settings_ShowNavBar}" Margin="0,4" />
                     </StackPanel>
                 </Border>

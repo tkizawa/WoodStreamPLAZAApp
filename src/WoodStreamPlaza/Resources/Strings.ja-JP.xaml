@@ -20,8 +20,10 @@
     <sys:String x:Key="Nav_Settings">設定</sys:String>
     
     <sys:String x:Key="Tray_Open">WoodStream PLAZA を開く</sys:String>
+    <sys:String x:Key="Tray_Reload">ページの再読み込み</sys:String>
     <sys:String x:Key="Tray_Settings">設定...</sys:String>
     <sys:String x:Key="Tray_Exit">終了</sys:String>
+    <sys:String x:Key="Tray_Tooltip_Unread">WoodStream PLAZA (未読: {0}件)</sys:String>
     
     <sys:String x:Key="Settings_Title">設定 - WoodStream PLAZA</sys:String>
     <sys:String x:Key="Settings_General">全般設定</sys:String>
@@ -34,6 +36,7 @@
     <sys:String x:Key="Settings_MinimizeToTray">ウィンドウ最小化時にタスクトレイに格納する</sys:String>
     <sys:String x:Key="Settings_CloseToTray">「閉じる」ボタンで終了せずタスクトレイに常駐する</sys:String>
     <sys:String x:Key="Settings_ShowNavBar">上部クイックナビゲーションバーを表示する</sys:String>
+    <sys:String x:Key="Settings_EnableNotifications">新着通知（返信・メンション・いいね等）をトースト表示する</sys:String>
     <sys:String x:Key="Settings_ClearCache">キャッシュ管理</sys:String>
     <sys:String x:Key="Settings_ClearCache_Desc">ログイン状態や一時キャッシュに問題がある場合にクリアできます。</sys:String>
     <sys:String x:Key="Settings_ClearCache_Btn">ブラウザキャッシュをクリア</sys:String>
@@ -41,4 +44,7 @@
     <sys:String x:Key="Settings_Save">保存</sys:String>
     <sys:String x:Key="Settings_Cancel">キャンセル</sys:String>
 
+    <sys:String x:Key="Notif_Reply">さんがあなたの投稿に返信しました</sys:String>
+    <sys:String x:Key="Notif_Like">さんがあなたの投稿に「いいね！」しました</sys:String>
+    <sys:String x:Key="Notif_Mention">さんがあなたをメンションしました</sys:String>
 </ResourceDictionary>

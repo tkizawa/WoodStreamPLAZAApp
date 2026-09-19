@@ -13,6 +13,10 @@ namespace WoodStreamPlaza;
 /// </summary>
 public partial class MainWindow : Window
 {
+    private readonly TrayIconService _trayIconService = new();
+    private bool _isExplicitExit = false;
+    private System.Windows.Threading.DispatcherTimer? _backgroundPollingTimer;
+
     public MainWindow()
     {
         Logger.Info("MainWindow constructor starting.");
@@ -24,11 +28,30 @@ public partial class MainWindow : Window
         // 上部ナビバー表示状態の反映
         UpdateNavBarVisibility();
 
+        // タスクトレイアイコンの初期化とイベント購読
+        InitializeTrayIcon();
+
+        // 通知クリックイベント購読
+        NotificationService.Instance.NotificationClicked += OnNotificationClicked;
+
         // イベント購読
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
+        StateChanged += MainWindow_StateChanged;
 
         Logger.Info("MainWindow constructor completed.");
+    }
+
+    /// <summary>
+    /// タスクトレイ常駐アイコンの初期化
+    /// </summary>
+    private void InitializeTrayIcon()
+    {
+        _trayIconService.Initialize();
+        _trayIconService.OpenRequested += RestoreAndActivate;
+        _trayIconService.ReloadRequested += () => Dispatcher.Invoke(() => MainWebView.Reload());
+        _trayIconService.SettingsRequested += () => Dispatcher.Invoke(OpenSettingsDialog);
+        _trayIconService.ExitRequested += ExitApplication;
     }
 
     [System.Runtime.InteropServices.DllImport("user32.dll")]
@@ -53,33 +76,80 @@ public partial class MainWindow : Window
     {
         Logger.Info($"MainWindow_Loaded event fired. Left={Left}, Top={Top}, Width={ActualWidth}, Height={ActualHeight}, Visibility={Visibility}, WindowState={WindowState}");
         
-        // 仮想デスクトップやバックグラウンドから強制的に現在のデスクトップの最前面へ呼び出し
-        try
-        {
-            var helper = new System.Windows.Interop.WindowInteropHelper(this);
-            IntPtr hwnd = helper.Handle;
-            if (hwnd != IntPtr.Zero)
-            {
-                SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-                SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-                SetForegroundWindow(hwnd);
-                SwitchToThisWindow(hwnd, true);
-                Logger.Info("Win32 SwitchToThisWindow and Topmost sequence applied.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Info($"Failed to apply Win32 window focus: {ex.Message}");
-        }
-
-        Activate();
-        Focus();
+        // 最前面復元
+        RestoreAndActivate();
 
         await InitializeWebViewAsync();
     }
 
     /// <summary>
-    /// WebView2の初期化（キャッシュフォルダ分離、Cookieセッション維持）
+    /// Webサイトとクライアントを繋ぐ通知ブリッジ用JavaScriptスクリプト
+    /// </summary>
+    private const string NotificationBridgeScript = @"
+        (() => {
+            if (window.__plazaNotificationBridgeInjected) return;
+            window.__plazaNotificationBridgeInjected = true;
+
+            // 1. window.Notification のフック / ポリフィル
+            try {
+                const notifyHost = (title, options) => {
+                    try {
+                        window.chrome?.webview?.postMessage({
+                            type: 'web_notification',
+                            title: title,
+                            body: options?.body,
+                            icon: options?.icon
+                        });
+                    } catch (e) {}
+                };
+
+                if (!window.Notification) {
+                    window.Notification = function(title, options) {
+                        notifyHost(title, options);
+                    };
+                } else {
+                    const OrigNotif = window.Notification;
+                    window.Notification = function(title, options) {
+                        notifyHost(title, options);
+                        return new OrigNotif(title, options);
+                    };
+                }
+                window.Notification.permission = 'granted';
+                window.Notification.requestPermission = async () => 'granted';
+            } catch (e) {
+                console.error('Notification hook error:', e);
+            }
+
+            // 2. window.fetch のインターセプト（api.php?action=get_notifications を監視）
+            try {
+                const origFetch = window.fetch;
+                window.fetch = async function(...args) {
+                    const res = await origFetch.apply(this, args);
+                    try {
+                        const url = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+                        if (url.includes('action=get_notifications')) {
+                            const clone = res.clone();
+                            clone.json().then(data => {
+                                if (data && data.success && Array.isArray(data.notifications)) {
+                                    window.chrome?.webview?.postMessage({
+                                        type: 'notifications_updated',
+                                        unreadCount: data.unread_count || 0,
+                                        notifications: data.notifications
+                                    });
+                                }
+                            }).catch(() => {});
+                        }
+                    } catch (e) {}
+                    return res;
+                };
+            } catch (e) {
+                console.error('Fetch hook error:', e);
+            }
+        })();
+    ";
+
+    /// <summary>
+    /// WebView2の初期化（キャッシュフォルダ分離、Cookieセッション維持、通知スクリプト注入）
     /// </summary>
     private async System.Threading.Tasks.Task InitializeWebViewAsync()
     {
@@ -102,16 +172,71 @@ public partial class MainWindow : Window
             };
 
             // CoreWebView2初期化完了イベント
-            MainWebView.CoreWebView2InitializationCompleted += (s, args) =>
+            MainWebView.CoreWebView2InitializationCompleted += async (s, args) =>
             {
                 if (args.IsSuccess)
                 {
                     Logger.Info("CoreWebView2InitializationCompleted: Success!");
                     MainWebView.CoreWebView2.Settings.IsStatusBarEnabled = false;
+
+                    // 通知のアクセス許可要求を自動許可
+                    MainWebView.CoreWebView2.PermissionRequested += (sender, pArgs) =>
+                    {
+                        if (pArgs.PermissionKind == CoreWebView2PermissionKind.Notifications)
+                        {
+                            pArgs.State = CoreWebView2PermissionState.Allow;
+                            pArgs.Handled = true;
+                        }
+                    };
+
+                    // WebView2標準のWeb Notification受信時ハンドリング
+                    MainWebView.CoreWebView2.NotificationReceived += (sender, nArgs) =>
+                    {
+                        NotificationService.Instance.ShowGenericNotification(nArgs.Notification.Title, nArgs.Notification.Body);
+                        nArgs.Handled = true;
+                    };
+
+                    // 通知ブリッジスクリプトをドキュメントロード時に自動注入
+                    await MainWebView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(NotificationBridgeScript);
                 }
                 else
                 {
                     Logger.Info($"CoreWebView2InitializationCompleted failed: {args.InitializationException?.Message}");
+                }
+            };
+
+            // WebView2からのメッセージ受信（通知連携）
+            MainWebView.WebMessageReceived += (s, args) =>
+            {
+                try
+                {
+                    string json = args.WebMessageAsJson;
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    if (root.TryGetProperty("type", out var typeProp))
+                    {
+                        string type = typeProp.GetString() ?? "";
+                        if (type == "notifications_updated")
+                        {
+                            int unreadCount = root.TryGetProperty("unreadCount", out var uc) ? uc.GetInt32() : 0;
+                            _trayIconService.UpdateUnreadCount(unreadCount);
+
+                            if (root.TryGetProperty("notifications", out var notifArray))
+                            {
+                                NotificationService.Instance.ProcessNotificationsJson(notifArray.GetRawText());
+                            }
+                        }
+                        else if (type == "web_notification")
+                        {
+                            string title = root.TryGetProperty("title", out var t) ? t.GetString() ?? "" : "";
+                            string? body = root.TryGetProperty("body", out var b) ? b.GetString() : null;
+                            NotificationService.Instance.ShowGenericNotification(title, body);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Info($"WebMessageReceived parse error: {ex.Message}");
                 }
             };
 
@@ -121,11 +246,21 @@ public partial class MainWindow : Window
                 Logger.Info($"NavigationStarting: {args.Uri}");
                 LoadingProgressBar.Visibility = Visibility.Visible;
             };
-            MainWebView.NavigationCompleted += (s, args) =>
+            MainWebView.NavigationCompleted += async (s, args) =>
             {
                 Logger.Info($"NavigationCompleted: IsSuccess={args.IsSuccess}");
                 LoadingProgressBar.Visibility = Visibility.Collapsed;
                 UpdateNavigationButtons();
+
+                // 念のためナビゲーション完了後にもブリッジスクリプトを直接実行
+                if (args.IsSuccess && MainWebView.CoreWebView2 != null)
+                {
+                    try
+                    {
+                        await MainWebView.CoreWebView2.ExecuteScriptAsync(NotificationBridgeScript);
+                    }
+                    catch { }
+                }
             };
             MainWebView.SourceChanged += (s, args) => UpdateNavigationButtons();
             MainWebView.ZoomFactorChanged += (s, args) =>
@@ -136,6 +271,9 @@ public partial class MainWindow : Window
             Logger.Info("Calling EnsureCoreWebView2Async...");
             await MainWebView.EnsureCoreWebView2Async();
             Logger.Info("EnsureCoreWebView2Async completed.");
+
+            // バックグラウンド常駐時の新着ポーリングタイマーを開始（30秒間隔）
+            StartBackgroundPolling();
 
             // 起動URLのロード
             var settings = SettingsService.Instance.CurrentSettings;
@@ -148,6 +286,32 @@ public partial class MainWindow : Window
             Logger.Info($"InitializeWebViewAsync EXCEPTION: {ex.Message}\n{ex.StackTrace}");
             WpfMessageBox.Show(this, $"WebView2の初期化に失敗しました: {ex.Message}", "WoodStream PLAZA", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+    }
+
+    /// <summary>
+    /// バックグラウンド常駐時でも通知を取得するための定期ポーリングタイマーを開始します。
+    /// </summary>
+    private void StartBackgroundPolling()
+    {
+        if (_backgroundPollingTimer != null) return;
+
+        _backgroundPollingTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromSeconds(30)
+        };
+        _backgroundPollingTimer.Tick += async (s, e) =>
+        {
+            if (MainWebView.CoreWebView2 != null)
+            {
+                try
+                {
+                    await MainWebView.CoreWebView2.ExecuteScriptAsync("window.loadNotifications && window.loadNotifications();");
+                }
+                catch { }
+            }
+        };
+        _backgroundPollingTimer.Start();
+        Logger.Info("Background notification polling timer started.");
     }
 
     /// <summary>
@@ -239,12 +403,110 @@ public partial class MainWindow : Window
 
     #endregion
 
-    #region ウィンドウ終了イベント
+    #region ウィンドウ状態とタスクトレイ連携
 
+    /// <summary>
+    /// メインウィンドウをタスクトレイまたはバックグラウンドから最前面に復元・アクティブ化します。
+    /// </summary>
+    public void RestoreAndActivate()
+    {
+        Logger.Info("RestoreAndActivate called.");
+
+        if (!IsVisible)
+        {
+            Show();
+        }
+
+        if (WindowState == WindowState.Minimized)
+        {
+            WindowState = WindowState.Normal;
+        }
+
+        // 仮想デスクトップやバックグラウンドから強制的に現在のデスクトップの最前面へ呼び出し
+        try
+        {
+            var helper = new System.Windows.Interop.WindowInteropHelper(this);
+            IntPtr hwnd = helper.Handle;
+            if (hwnd != IntPtr.Zero)
+            {
+                SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                SetForegroundWindow(hwnd);
+                SwitchToThisWindow(hwnd, true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Info($"Failed to restore window focus: {ex.Message}");
+        }
+
+        Activate();
+        Focus();
+    }
+
+    /// <summary>
+    /// ウィンドウ最小化時：設定に応じてタスクトレイに格納（タスクバーから非表示）
+    /// </summary>
+    private void MainWindow_StateChanged(object? sender, EventArgs e)
+    {
+        var settings = SettingsService.Instance.CurrentSettings;
+        if (WindowState == WindowState.Minimized && settings.MinimizeToTray)
+        {
+            Logger.Info("Window minimized to system tray.");
+            Hide();
+        }
+    }
+
+    /// <summary>
+    /// ウィンドウ終了イベント：CloseToTray設定時はタスクトレイに常駐
+    /// </summary>
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        Logger.Info("MainWindow_Closing event.");
+        Logger.Info($"MainWindow_Closing event. IsExplicitExit={_isExplicitExit}");
+
+        var settings = SettingsService.Instance.CurrentSettings;
+        if (!_isExplicitExit && settings.CloseToTray)
+        {
+            // アプリを終了せずタスクトレイに格納
+            e.Cancel = true;
+            SaveWindowBounds();
+            Hide();
+            Logger.Info("Window closed to system tray.");
+            return;
+        }
+
+        // アプリケーション完全終了時の後始末
         SaveWindowBounds();
+        _backgroundPollingTimer?.Stop();
+        _trayIconService.Dispose();
+        NotificationService.Instance.NotificationClicked -= OnNotificationClicked;
+        Logger.Info("MainWindow closed completely.");
+    }
+
+    /// <summary>
+    /// トレイメニューからの完全終了要求
+    /// </summary>
+    private void ExitApplication()
+    {
+        Logger.Info("ExitApplication requested.");
+        _isExplicitExit = true;
+        Close();
+        System.Windows.Application.Current.Shutdown();
+    }
+
+    /// <summary>
+    /// トースト通知クリック時のハンドラ：ウィンドウを復元し、通知メニューを開く
+    /// </summary>
+    private void OnNotificationClicked(string? argument)
+    {
+        Logger.Info($"OnNotificationClicked invoked. Argument={argument}");
+        RestoreAndActivate();
+
+        if (MainWebView.CoreWebView2 != null)
+        {
+            // Web画面上の通知ベルを開く
+            MainWebView.CoreWebView2.ExecuteScriptAsync("(() => { const btn = document.getElementById('notificationBellBtn'); if (btn) btn.click(); })();");
+        }
     }
 
     #endregion
@@ -343,6 +605,16 @@ public partial class MainWindow : Window
 
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
+        OpenSettingsDialog();
+    }
+
+    /// <summary>
+    /// 設定ダイアログを表示し、変更があればナビゲーションバーやトレイメニューに反映します。
+    /// </summary>
+    private void OpenSettingsDialog()
+    {
+        RestoreAndActivate();
+
         var settingsWin = new SettingsWindow(MainWebView)
         {
             Owner = this
@@ -351,6 +623,7 @@ public partial class MainWindow : Window
         if (settingsWin.ShowDialog() == true)
         {
             UpdateNavBarVisibility();
+            _trayIconService.UpdateMenuLanguage();
         }
     }
 

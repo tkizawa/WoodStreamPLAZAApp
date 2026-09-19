@@ -20,8 +20,10 @@
     <sys:String x:Key="Nav_Settings">Settings</sys:String>
     
     <sys:String x:Key="Tray_Open">Open WoodStream PLAZA</sys:String>
+    <sys:String x:Key="Tray_Reload">Reload Page</sys:String>
     <sys:String x:Key="Tray_Settings">Settings...</sys:String>
     <sys:String x:Key="Tray_Exit">Exit</sys:String>
+    <sys:String x:Key="Tray_Tooltip_Unread">WoodStream PLAZA ({0} unread)</sys:String>
     
     <sys:String x:Key="Settings_Title">Settings - WoodStream PLAZA</sys:String>
     <sys:String x:Key="Settings_General">General Settings</sys:String>
@@ -34,6 +36,7 @@
     <sys:String x:Key="Settings_MinimizeToTray">Minimize to system tray on window minimize</sys:String>
     <sys:String x:Key="Settings_CloseToTray">Keep in system tray when closing window</sys:String>
     <sys:String x:Key="Settings_ShowNavBar">Show top quick navigation bar</sys:String>
+    <sys:String x:Key="Settings_EnableNotifications">Show desktop toast notifications for new activity</sys:String>
     <sys:String x:Key="Settings_ClearCache">Cache Management</sys:String>
     <sys:String x:Key="Settings_ClearCache_Desc">Clear cache if you experience issues with login or cached content.</sys:String>
     <sys:String x:Key="Settings_ClearCache_Btn">Clear Browser Cache</sys:String>
@@ -41,4 +44,7 @@
     <sys:String x:Key="Settings_Save">Save</sys:String>
     <sys:String x:Key="Settings_Cancel">Cancel</sys:String>
 
+    <sys:String x:Key="Notif_Reply">replied to your post</sys:String>
+    <sys:String x:Key="Notif_Like">liked your post</sys:String>
+    <sys:String x:Key="Notif_Mention">mentioned you</sys:String>
 </ResourceDictionary>

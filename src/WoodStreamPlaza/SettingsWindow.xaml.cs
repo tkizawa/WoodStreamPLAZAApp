@@ -50,6 +50,7 @@ public partial class SettingsWindow : Window
         // 動作チェックボックス
         MinimizeToTrayCheckBox.IsChecked = settings.MinimizeToTray;
         CloseToTrayCheckBox.IsChecked = settings.CloseToTray;
+        EnableNotificationsCheckBox.IsChecked = settings.EnableNotifications;
         ShowNavBarCheckBox.IsChecked = settings.ShowNavigationBar;
     }
 
@@ -74,6 +75,7 @@ public partial class SettingsWindow : Window
 
         settings.MinimizeToTray = MinimizeToTrayCheckBox.IsChecked ?? false;
         settings.CloseToTray = CloseToTrayCheckBox.IsChecked ?? false;
+        settings.EnableNotifications = EnableNotificationsCheckBox.IsChecked ?? true;
         settings.ShowNavigationBar = ShowNavBarCheckBox.IsChecked ?? true;
 
         SettingsService.Instance.Save();

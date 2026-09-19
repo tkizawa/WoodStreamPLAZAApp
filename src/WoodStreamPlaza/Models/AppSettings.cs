@@ -56,4 +56,9 @@ public class AppSettings
     /// アプリ上部のクイックナビゲーションバーを表示するかどうか
     /// </summary>
     public bool ShowNavigationBar { get; set; } = true;
+
+    /// <summary>
+    /// 新着通知（返信・メンション・いいね等）をWindowsトースト通知で表示するかどうか
+    /// </summary>
+    public bool EnableNotifications { get; set; } = true;
 }
