@@ -79,6 +79,13 @@ powershell -ExecutionPolicy Bypass -File packaging/installer/build_installers.ps
 ```
 ※ ビルド結果は `Installer/` フォルダに出力されます。
 
+### Microsoft Store 用 MSIX パッケージ作成 (x64 / arm64 / msixbundle)
+```powershell
+pwsh -ExecutionPolicy Bypass -File packaging/msix/build_msix.ps1 -Version 1.0.0.0
+```
+※ ビルド結果は `MSIX/` フォルダに出力されます（`WoodStreamPlaza_1.0.0.0.msixbundle` 等）。
+※ 申請の詳細手順は [STORE_SUBMISSION.md](STORE_SUBMISSION.md) をご覧ください。
+
 ---
 
 ## 📂 プロジェクト構成
