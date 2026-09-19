@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Interop;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using WoodStreamPlaza.Services;
@@ -15,12 +13,6 @@ namespace WoodStreamPlaza;
 /// </summary>
 public partial class MainWindow : Window
 {
-    [DllImport("user32.dll")]
-    private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-    [DllImport("user32.dll")]
-    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
     public MainWindow()
     {
         Logger.Info("MainWindow constructor starting.");
@@ -34,26 +26,9 @@ public partial class MainWindow : Window
 
         // イベント購読
         Loaded += MainWindow_Loaded;
-        ContentRendered += MainWindow_ContentRendered;
         Closing += MainWindow_Closing;
-        IsVisibleChanged += (s, e) => Logger.Info($"MainWindow IsVisibleChanged: NewValue={e.NewValue}");
 
         Logger.Info("MainWindow constructor completed.");
-    }
-
-    private void MainWindow_ContentRendered(object? sender, EventArgs e)
-    {
-        Logger.Info($"MainWindow ContentRendered fired! Left={Left}, Top={Top}, Width={ActualWidth}, Height={ActualHeight}, Visibility={Visibility}, WindowState={WindowState}, IsVisible={IsVisible}");
-        try
-        {
-            var hwnd = new WindowInteropHelper(this).Handle;
-            if (hwnd != IntPtr.Zero)
-            {
-                ShowWindow(hwnd, 3); // SW_MAXIMIZE
-                SetForegroundWindow(hwnd);
-            }
-        }
-        catch { }
     }
 
     /// <summary>
@@ -61,7 +36,7 @@ public partial class MainWindow : Window
     /// </summary>
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        Logger.Info($"MainWindow_Loaded event fired. Left={Left}, Top={Top}, Width={ActualWidth}, Height={ActualHeight}, Visibility={Visibility}, WindowState={WindowState}, IsVisible={IsVisible}");
+        Logger.Info($"MainWindow_Loaded event fired. Left={Left}, Top={Top}, Width={ActualWidth}, Height={ActualHeight}, Visibility={Visibility}, WindowState={WindowState}");
         
         Activate();
         Focus();
@@ -169,8 +144,13 @@ public partial class MainWindow : Window
         var settings = SettingsService.Instance.CurrentSettings;
         Logger.Info($"Restoring window bounds. W:{settings.WindowWidth}, H:{settings.WindowHeight}, L:{settings.WindowLeft}, T:{settings.WindowTop}, State:{settings.WindowState}");
 
-        // 初期表示は最大化
-        WindowState = WindowState.Maximized;
+        // 幅・高さの復元
+        Width = (settings.WindowWidth >= MinWidth) ? settings.WindowWidth : 1200;
+        Height = (settings.WindowHeight >= MinHeight) ? settings.WindowHeight : 800;
+
+        // 画面中央に配置
+        WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        WindowState = WindowState.Normal;
     }
 
     /// <summary>

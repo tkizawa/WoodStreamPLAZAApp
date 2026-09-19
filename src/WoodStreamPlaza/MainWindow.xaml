@@ -2,16 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-        Title="{DynamicResource App_Title}"
-        Width="1200" Height="850"
+        Title="WoodStream PLAZA"
+        Width="1200" Height="800"
         MinWidth="800" MinHeight="600"
-        Icon="app.ico"
-        Background="#F1F5F9"
-        FontFamily="{StaticResource AppFont}"
-        ShowInTaskbar="True"
         WindowStartupLocation="CenterScreen"
-        WindowState="Maximized"
-        Topmost="True">
+        WindowState="Normal"
+        ShowInTaskbar="True"
+        Background="#F1F5F9"
+        FontFamily="{StaticResource AppFont}">
     <Grid>
         <Grid.RowDefinitions>
             <!-- 上部クイックナビゲーションバー -->
@@ -24,13 +22,15 @@
 
         <!-- 上部ナビゲーションツールバー -->
         <Border Grid.Row="0"
-                Background="{StaticResource BgHeaderBrush}"
-                BorderBrush="{StaticResource BorderBrush}"
+                Background="#FFFFFF"
+                BorderBrush="#E2E8F0"
                 BorderThickness="0,0,0,1"
-                Padding="10,8">
+                Padding="12,10">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <!-- ブラウザ基本操作（戻る、進む、更新、ホーム） -->
+                    <!-- タイトル & ブランド -->
+                    <ColumnDefinition Width="Auto" />
+                    <!-- 基本操作（戻る、進む、更新、ホーム） -->
                     <ColumnDefinition Width="Auto" />
                     <!-- ルームクイックアクセスボタン群 -->
                     <ColumnDefinition Width="*" />
@@ -38,8 +38,11 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
+                <!-- アプリタイトル -->
+                <TextBlock Grid.Column="0" Text="WoodStream PLAZA" FontSize="15" FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center" Margin="0,0,16,0" />
+
                 <!-- 基本操作 -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,12,0">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,12,0">
                     <Button x:Name="BackButton" Content="◀" ToolTip="{DynamicResource Nav_Back}" Width="32" Height="30" Margin="0,0,4,0" Style="{StaticResource NavButtonStyle}" Click="BackButton_Click" />
                     <Button x:Name="ForwardButton" Content="▶" ToolTip="{DynamicResource Nav_Forward}" Width="32" Height="30" Margin="0,0,4,0" Style="{StaticResource NavButtonStyle}" Click="ForwardButton_Click" />
                     <Button x:Name="ReloadButton" Content="⟳" ToolTip="{DynamicResource Nav_Reload}" Width="32" Height="30" Margin="0,0,4,0" Style="{StaticResource NavButtonStyle}" Click="ReloadButton_Click" />
@@ -47,7 +50,7 @@
                 </StackPanel>
 
                 <!-- ルーム切り替えクイックボタン (横スクロール対応) -->
-                <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <ScrollViewer Grid.Column="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="本館:" VerticalAlignment="Center" FontSize="11" Foreground="#64748B" FontWeight="Bold" Margin="4,0,6,0" />
                         <Button Content="{DynamicResource Nav_Notice}" Margin="0,0,4,0" Style="{StaticResource RoomButtonStyle}" Click="RoomNotice_Click" />
@@ -62,7 +65,7 @@
                 </ScrollViewer>
 
                 <!-- ズームおよび設定 -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="8,0,0,0">
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="8,0,0,0">
                     <Button Content="-" ToolTip="{DynamicResource Nav_ZoomOut}" Width="28" Height="30" Margin="0,0,2,0" Style="{StaticResource NavButtonStyle}" Click="ZoomOut_Click" />
                     <Button x:Name="ZoomLevelButton" Content="100%" ToolTip="{DynamicResource Nav_ZoomReset}" MinWidth="48" Height="30" Margin="0,0,2,0" Style="{StaticResource NavButtonStyle}" Click="ZoomReset_Click" />
                     <Button Content="+" ToolTip="{DynamicResource Nav_ZoomIn}" Width="28" Height="30" Margin="0,0,8,0" Style="{StaticResource NavButtonStyle}" Click="ZoomIn_Click" />
