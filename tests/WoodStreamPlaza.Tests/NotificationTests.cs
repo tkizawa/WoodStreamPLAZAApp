@@ -78,4 +78,26 @@ public class NotificationTests
 
         Assert.Null(exception);
     }
+
+    [Fact]
+    public void TaskbarBadgeHelper_ZeroCount_ShouldReturnNull()
+    {
+        var badge = TaskbarBadgeHelper.CreateBadge(0);
+        Assert.Null(badge);
+    }
+
+    [Fact]
+    public void TaskbarBadgeHelper_PositiveCount_ShouldCreateBadgeInSta()
+    {
+        System.Windows.Media.ImageSource? badge = null;
+        var thread = new System.Threading.Thread(() =>
+        {
+            badge = TaskbarBadgeHelper.CreateBadge(5);
+        });
+        thread.SetApartmentState(System.Threading.ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        Assert.NotNull(badge);
+    }
 }

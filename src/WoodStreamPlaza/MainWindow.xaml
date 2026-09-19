@@ -10,6 +10,9 @@
         ShowInTaskbar="True"
         Background="#F1F5F9"
         FontFamily="{StaticResource AppFont}">
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo x:Name="AppTaskbarItemInfo" Description="WoodStream PLAZA" />
+    </Window.TaskbarItemInfo>
     <Grid>
         <Grid.RowDefinitions>
             <!-- 上部クイックナビゲーションバー -->

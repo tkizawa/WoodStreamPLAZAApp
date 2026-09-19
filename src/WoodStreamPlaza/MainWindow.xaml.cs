@@ -220,6 +220,7 @@ public partial class MainWindow : Window
                         {
                             int unreadCount = root.TryGetProperty("unreadCount", out var uc) ? uc.GetInt32() : 0;
                             _trayIconService.UpdateUnreadCount(unreadCount);
+                            UpdateTaskbarBadge(unreadCount);
 
                             if (root.TryGetProperty("notifications", out var notifArray))
                             {
@@ -442,6 +443,26 @@ public partial class MainWindow : Window
 
         Activate();
         Focus();
+    }
+
+    /// <summary>
+    /// タスクバーアイコンの未読バッジ（赤丸数字）を更新します。
+    /// </summary>
+    /// <param name="unreadCount">未読件数（0件でバッジ消去）</param>
+    private void UpdateTaskbarBadge(int unreadCount)
+    {
+        try
+        {
+            if (AppTaskbarItemInfo != null)
+            {
+                AppTaskbarItemInfo.Overlay = TaskbarBadgeHelper.CreateBadge(unreadCount);
+                Logger.Info($"Taskbar badge updated. UnreadCount={unreadCount}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Info($"Failed to update taskbar badge: {ex.Message}");
+        }
     }
 
     /// <summary>
