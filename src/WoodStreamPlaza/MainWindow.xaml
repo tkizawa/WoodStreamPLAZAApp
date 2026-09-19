@@ -7,7 +7,11 @@
         MinWidth="800" MinHeight="600"
         Icon="app.ico"
         Background="#F1F5F9"
-        FontFamily="{StaticResource AppFont}">
+        FontFamily="{StaticResource AppFont}"
+        ShowInTaskbar="True"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Topmost="True">
     <Grid>
         <Grid.RowDefinitions>
             <!-- 上部クイックナビゲーションバー -->
