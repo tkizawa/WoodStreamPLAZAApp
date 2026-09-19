@@ -28,6 +28,13 @@ public partial class MainWindow : Window
         // 上部ナビバー表示状態の反映
         UpdateNavBarVisibility();
 
+        // バージョン番号の反映
+        var ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        if (ver != null)
+        {
+            AppVersionTextBlock.Text = $"v{ver.Major}.{ver.Minor}.{ver.Build}.{ver.Revision}";
+        }
+
         // タスクトレイアイコンの初期化とイベント購読
         InitializeTrayIcon();
 
@@ -618,6 +625,22 @@ public partial class MainWindow : Window
         {
             MainWebView.ZoomFactor = 1.0;
         }
+    }
+
+    #endregion
+
+    #region 操作説明画面
+
+    /// <summary>
+    /// 操作説明ボタン押下時：操作説明書ウィンドウを表示
+    /// </summary>
+    private void HelpButton_Click(object sender, RoutedEventArgs e)
+    {
+        var helpWin = new HelpWindow
+        {
+            Owner = this
+        };
+        helpWin.ShowDialog();
     }
 
     #endregion

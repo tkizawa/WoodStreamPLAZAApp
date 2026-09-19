@@ -14,9 +14,9 @@
     <Description>WoodStream PLAZA クライアント アプリケーション</Description>
     <Company>WoodStream Networks Tomokazu Kizawa</Company>
     <Copyright>Copyright © 2026 WoodStream Networks Tomokazu Kizawa. All rights reserved.</Copyright>
-    <Version>1.0.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0.1</Version>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
     
     <!-- アプリアイコン -->
     <ApplicationIcon>app.ico</ApplicationIcon>

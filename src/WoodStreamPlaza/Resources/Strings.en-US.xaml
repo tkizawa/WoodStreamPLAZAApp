@@ -18,6 +18,9 @@
     <sys:String x:Key="Nav_ZoomOut">Zoom Out</sys:String>
     <sys:String x:Key="Nav_ZoomReset">Reset</sys:String>
     <sys:String x:Key="Nav_Settings">Settings</sys:String>
+    <sys:String x:Key="Nav_Help">User Manual</sys:String>
+    <sys:String x:Key="Help_Title">User Manual - WoodStream PLAZA</sys:String>
+    <sys:String x:Key="Help_Close">Close</sys:String>
     
     <sys:String x:Key="Tray_Open">Open WoodStream PLAZA</sys:String>
     <sys:String x:Key="Tray_Reload">Reload Page</sys:String>

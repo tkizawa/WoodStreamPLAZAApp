@@ -5,7 +5,7 @@
 [![WebView2](https://img.shields.io/badge/Engine-WebView2-008AD7?logo=microsoftedge)](https://developer.microsoft.com/microsoft-edge/webview2/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-ポッドキャスト番組「**WoodStreamのデジタル生活**」のリスナーコミュニティ「[WoodStream PLAZA](https://windows-podcast.com/plaza/)」を、Windows デスクトップ環境で快適に利用するための専用クライアントアプリケーションです。
+ポッドキャスト番組「**WoodStreamのデジタル生活**」のリスナーコミュニティ「[WoodStream PLAZA](https://windows-podcast.com/plaza/)」を、Windows デスクトップ環境で快適に利用するための専用クライアントアプリケーションです。詳しい操作手順は [操作説明書 (MANUAL.md)](MANUAL.md) をご覧ください。
 
 ---
 

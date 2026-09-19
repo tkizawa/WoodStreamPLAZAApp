@@ -18,6 +18,9 @@
     <sys:String x:Key="Nav_ZoomOut">縮小</sys:String>
     <sys:String x:Key="Nav_ZoomReset">リセット</sys:String>
     <sys:String x:Key="Nav_Settings">設定</sys:String>
+    <sys:String x:Key="Nav_Help">操作説明</sys:String>
+    <sys:String x:Key="Help_Title">操作説明書 - WoodStream PLAZA</sys:String>
+    <sys:String x:Key="Help_Close">閉じる</sys:String>
     
     <sys:String x:Key="Tray_Open">WoodStream PLAZA を開く</sys:String>
     <sys:String x:Key="Tray_Reload">ページの再読み込み</sys:String>

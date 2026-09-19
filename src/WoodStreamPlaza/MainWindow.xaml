@@ -41,8 +41,13 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- アプリタイトル -->
-                <TextBlock Grid.Column="0" Text="WoodStream PLAZA" FontSize="15" FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center" Margin="0,0,16,0" />
+                <!-- アプリタイトル & バージョン番号 -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
+                    <TextBlock Text="WoodStream PLAZA" FontSize="15" FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center" />
+                    <Border Background="#EEF2F6" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="10" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="AppVersionTextBlock" Text="v1.0.0.1" FontSize="10" FontWeight="SemiBold" Foreground="#2563EB" />
+                    </Border>
+                </StackPanel>
 
                 <!-- 基本操作 -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,12,0">
@@ -67,12 +72,13 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- ズームおよび設定 -->
+                <!-- ズーム、ヘルプ、設定 -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="8,0,0,0">
                     <Button Content="-" ToolTip="{DynamicResource Nav_ZoomOut}" Width="28" Height="30" Margin="0,0,2,0" Style="{StaticResource NavButtonStyle}" Click="ZoomOut_Click" />
                     <Button x:Name="ZoomLevelButton" Content="100%" ToolTip="{DynamicResource Nav_ZoomReset}" MinWidth="48" Height="30" Margin="0,0,2,0" Style="{StaticResource NavButtonStyle}" Click="ZoomReset_Click" />
                     <Button Content="+" ToolTip="{DynamicResource Nav_ZoomIn}" Width="28" Height="30" Margin="0,0,8,0" Style="{StaticResource NavButtonStyle}" Click="ZoomIn_Click" />
 
+                    <Button Content="❓" ToolTip="{DynamicResource Nav_Help}" Width="32" Height="30" Margin="0,0,4,0" Style="{StaticResource NavButtonStyle}" Click="HelpButton_Click" />
                     <Button Content="⚙" ToolTip="{DynamicResource Nav_Settings}" Width="32" Height="30" Style="{StaticResource NavButtonStyle}" Click="SettingsButton_Click" />
                 </StackPanel>
             </Grid>
