@@ -45,7 +45,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
                     <TextBlock Text="WoodStream PLAZA" FontSize="15" FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center" />
                     <Border Background="#EEF2F6" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="10" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                        <TextBlock x:Name="AppVersionTextBlock" Text="v1.0.0.1" FontSize="10" FontWeight="SemiBold" Foreground="#2563EB" />
+                        <TextBlock x:Name="AppVersionTextBlock" Text="v1.0.0.0" FontSize="10" FontWeight="SemiBold" Foreground="#2563EB" />
                     </Border>
                 </StackPanel>
 

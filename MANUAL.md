@@ -1,7 +1,7 @@
 # WoodStream PLAZA 操作説明書 (User Manual)
 
 **WoodStream PLAZA Desktop Client**  
-**Version 1.0.0.1**  
+**Version 1.0.0.0**  
 *Copyright © 2026 WoodStream Networks Tomokazu Kizawa. All rights reserved.*
 
 ---
@@ -19,7 +19,7 @@
 
 | ボタン / 表示 | 機能 |
 | :--- | :--- |
-| **WoodStream PLAZA** | アプリ名およびバージョン（**v1.0.0.1**）が表示されます。 |
+| **WoodStream PLAZA** | アプリ名およびバージョン（**v1.0.0.0**）が表示されます。 |
 | **◀ (戻る)** | 閲覧履歴を1つ前のページに戻します。 |
 | **▶ (進む)** | 閲覧履歴を1つ先のページに進めます。 |
 | **⟳ (更新)** | 現在の画面を再読み込みします。 |
