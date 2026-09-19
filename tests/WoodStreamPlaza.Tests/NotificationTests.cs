@@ -51,4 +51,31 @@ public class NotificationTests
 
         Assert.Null(exception);
     }
+
+    [Fact]
+    public void NotificationJsonParsing_WithNumericIdsAndIntegerBooleans_ShouldParseSuccessfully()
+    {
+        // 実際のPHP/MySQLレスポンス形式（数値ID、整数ブール0/1、message_excerpt等）
+        string json = @"[
+            {
+                ""id"": 201,
+                ""type"": ""mention"",
+                ""sender_name"": ""木澤朋和"",
+                ""sender_provider"": ""microsoft"",
+                ""message_excerpt"": ""@user こんにちは！"",
+                ""room"": ""lounge"",
+                ""floor"": ""main"",
+                ""target_post_id"": 99,
+                ""target_comment_id"": null,
+                ""is_read"": 0
+            }
+        ]";
+
+        var exception = Record.Exception(() =>
+        {
+            NotificationService.Instance.ProcessNotificationsJson(json);
+        });
+
+        Assert.Null(exception);
+    }
 }
