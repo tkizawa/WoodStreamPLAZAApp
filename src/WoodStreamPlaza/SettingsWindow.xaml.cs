@@ -64,7 +64,6 @@ public partial class SettingsWindow : Window
         {
             settings.Language = selectedLang.Tag?.ToString() ?? "auto";
             LocalizationService.Instance.ApplyLanguage(settings.Language);
-            TrayService.Instance.UpdateContextMenu();
         }
 
         string url = StartUrlTextBox.Text.Trim();
@@ -73,7 +72,7 @@ public partial class SettingsWindow : Window
             settings.StartUrl = url;
         }
 
-        settings.MinimizeToTray = MinimizeToTrayCheckBox.IsChecked ?? true;
+        settings.MinimizeToTray = MinimizeToTrayCheckBox.IsChecked ?? false;
         settings.CloseToTray = CloseToTrayCheckBox.IsChecked ?? false;
         settings.ShowNavigationBar = ShowNavBarCheckBox.IsChecked ?? true;
 

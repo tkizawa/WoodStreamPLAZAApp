@@ -13,8 +13,6 @@ namespace WoodStreamPlaza;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private bool _isExplicitExit = false;
-
     public MainWindow()
     {
         Logger.Info("MainWindow constructor starting.");
@@ -26,21 +24,9 @@ public partial class MainWindow : Window
         // 上部ナビバー表示状態の反映
         UpdateNavBarVisibility();
 
-        // トレイアイコンの初期化
-        try
-        {
-            TrayService.Instance.Initialize(this, OpenSettingsWindow);
-            Logger.Info("TrayService initialized.");
-        }
-        catch (Exception ex)
-        {
-            Logger.Info($"TrayService initialization failed: {ex.Message}");
-        }
-
         // イベント購読
         Loaded += MainWindow_Loaded;
         Closing += MainWindow_Closing;
-        StateChanged += MainWindow_StateChanged;
 
         Logger.Info("MainWindow constructor completed.");
     }
@@ -51,6 +37,10 @@ public partial class MainWindow : Window
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
         Logger.Info("MainWindow_Loaded event fired.");
+        WindowState = WindowState.Normal;
+        Activate();
+        Focus();
+
         await InitializeWebViewAsync();
     }
 
@@ -155,16 +145,10 @@ public partial class MainWindow : Window
         Logger.Info($"Restoring window bounds. W:{settings.WindowWidth}, H:{settings.WindowHeight}, L:{settings.WindowLeft}, T:{settings.WindowTop}, State:{settings.WindowState}");
 
         // 幅・高さの復元
-        if (settings.WindowWidth >= MinWidth)
-        {
-            Width = settings.WindowWidth;
-        }
-        if (settings.WindowHeight >= MinHeight)
-        {
-            Height = settings.WindowHeight;
-        }
+        Width = (settings.WindowWidth >= MinWidth) ? settings.WindowWidth : 1200;
+        Height = (settings.WindowHeight >= MinHeight) ? settings.WindowHeight : 850;
 
-        // 座標の復元（画面外に配置されて見えなくなるのを防止）
+        // 座標の安全な復元
         if (settings.WindowLeft.HasValue && settings.WindowTop.HasValue)
         {
             double left = settings.WindowLeft.Value;
@@ -175,8 +159,9 @@ public partial class MainWindow : Window
             double virtualWidth = SystemParameters.VirtualScreenWidth;
             double virtualHeight = SystemParameters.VirtualScreenHeight;
 
-            if (left >= virtualLeft - 100 && left < virtualLeft + virtualWidth - 100 &&
-                top >= virtualTop - 100 && top < virtualTop + virtualHeight - 100)
+            // 仮想スクリーン内の安全な領域にあるか確認
+            if (left >= virtualLeft && left + 200 < virtualLeft + virtualWidth &&
+                top >= virtualTop && top + 100 < virtualTop + virtualHeight)
             {
                 WindowStartupLocation = WindowStartupLocation.Manual;
                 Left = left;
@@ -214,7 +199,7 @@ public partial class MainWindow : Window
             settings.WindowHeight = Height;
             settings.WindowState = WindowState.Normal;
         }
-        else
+        else if (WindowState == WindowState.Maximized)
         {
             Rect restoreBounds = RestoreBounds;
             if (!restoreBounds.IsEmpty)
@@ -224,7 +209,7 @@ public partial class MainWindow : Window
                 settings.WindowWidth = restoreBounds.Width;
                 settings.WindowHeight = restoreBounds.Height;
             }
-            settings.WindowState = WindowState == WindowState.Maximized ? WindowState.Maximized : WindowState.Normal;
+            settings.WindowState = WindowState.Maximized;
         }
 
         SettingsService.Instance.Save();
@@ -233,34 +218,12 @@ public partial class MainWindow : Window
 
     #endregion
 
-    #region ウィンドウライフサイクル & トレイ常駐
-
-    private void MainWindow_StateChanged(object? sender, EventArgs e)
-    {
-        var settings = SettingsService.Instance.CurrentSettings;
-        Logger.Info($"WindowState changed to: {WindowState}");
-        if (WindowState == WindowState.Minimized && settings.MinimizeToTray)
-        {
-            Logger.Info("Hiding window to system tray.");
-            Hide();
-        }
-    }
+    #region ウィンドウ終了イベント
 
     private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
-        var settings = SettingsService.Instance.CurrentSettings;
-        Logger.Info($"MainWindow_Closing. CloseToTray={settings.CloseToTray}, ExplicitExit={_isExplicitExit}");
-
-        if (!_isExplicitExit && settings.CloseToTray)
-        {
-            e.Cancel = true;
-            Hide();
-            return;
-        }
-
-        // 終了時に位置とサイズを保存 (グローバル規約)
+        Logger.Info("MainWindow_Closing event.");
         SaveWindowBounds();
-        TrayService.Instance.Dispose();
     }
 
     #endregion
@@ -358,11 +321,6 @@ public partial class MainWindow : Window
     #region 設定画面
 
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
-    {
-        OpenSettingsWindow();
-    }
-
-    private void OpenSettingsWindow()
     {
         var settingsWin = new SettingsWindow(MainWebView)
         {

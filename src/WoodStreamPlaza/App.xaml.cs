@@ -1,10 +1,9 @@
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
 using WoodStreamPlaza.Services;
 using WpfApplication = System.Windows.Application;
+using WpfMessageBox = System.Windows.MessageBox;
 
 namespace WoodStreamPlaza;
 
@@ -13,64 +12,22 @@ namespace WoodStreamPlaza;
 /// </summary>
 public partial class App : WpfApplication
 {
-    [DllImport("user32.dll")]
-    private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-    [DllImport("user32.dll")]
-    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    private const int SW_RESTORE = 9;
-
     protected override void OnStartup(StartupEventArgs e)
     {
         Logger.Info("Application OnStartup started.");
-
-        // 既存プロセスの安全な多重起動チェック
-        var currentProcess = Process.GetCurrentProcess();
-        var runningProcesses = Process.GetProcessesByName(currentProcess.ProcessName);
-
-        Process? otherProcess = null;
-        foreach (var p in runningProcesses)
-        {
-            if (p.Id != currentProcess.Id)
-            {
-                otherProcess = p;
-                break;
-            }
-        }
-
-        if (otherProcess != null)
-        {
-            Logger.Info($"Existing process found (PID: {otherProcess.Id}). Bringing it to foreground and exiting.");
-            try
-            {
-                IntPtr hWnd = otherProcess.MainWindowHandle;
-                if (hWnd != IntPtr.Zero)
-                {
-                    ShowWindow(hWnd, SW_RESTORE);
-                    SetForegroundWindow(hWnd);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Info($"Error bringing window to foreground: {ex.Message}");
-            }
-
-            Shutdown();
-            return;
-        }
-
         base.OnStartup(e);
 
         // 未処理例外ハンドリング
         AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
         {
             Logger.Info($"AppDomain UnhandledException: {args.ExceptionObject}");
+            WpfMessageBox.Show($"致命的なエラーが発生しました: {args.ExceptionObject}", "WoodStream PLAZA", MessageBoxButton.OK, MessageBoxImage.Error);
         };
 
         DispatcherUnhandledException += (sender, args) =>
         {
             Logger.Info($"DispatcherUnhandledException: {args.Exception.Message}\n{args.Exception.StackTrace}");
+            WpfMessageBox.Show($"エラーが発生しました: {args.Exception.Message}", "WoodStream PLAZA", MessageBoxButton.OK, MessageBoxImage.Error);
             args.Handled = true;
         };
 
@@ -79,5 +36,20 @@ public partial class App : WpfApplication
         Logger.Info($"Settings loaded. StartUrl: {settings.StartUrl}, Language: {settings.Language}");
         LocalizationService.Instance.ApplyLanguage(settings.Language);
         Logger.Info("Language applied.");
+
+        // メインウィンドウの明示的生成と表示（確実な表示を保証）
+        try
+        {
+            var mainWindow = new MainWindow();
+            MainWindow = mainWindow;
+            mainWindow.Show();
+            mainWindow.Activate();
+            Logger.Info("MainWindow shown and activated successfully.");
+        }
+        catch (Exception ex)
+        {
+            Logger.Info($"Failed to create or show MainWindow: {ex.Message}\n{ex.StackTrace}");
+            WpfMessageBox.Show($"メインウィンドウの表示に失敗しました: {ex.Message}", "WoodStream PLAZA", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }
