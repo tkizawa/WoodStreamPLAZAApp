@@ -73,6 +73,12 @@ dotnet run --project src/WoodStreamPlaza
 dotnet test
 ```
 
+### スタンドアロンインストーラ作成 (x64 / arm64)
+```powershell
+powershell -ExecutionPolicy Bypass -File packaging/installer/build_installers.ps1
+```
+※ ビルド結果は `Installer/` フォルダに出力されます。
+
 ---
 
 ## 📂 プロジェクト構成

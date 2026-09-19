@@ -1,9 +1,23 @@
 ; Inno Setup Script for WoodStream PLAZA Desktop Client
 #define MyAppName "WoodStream PLAZA"
 #define MyAppVersion "1.0.0.0"
-#define MyAppPublisher "WoodStream"
+#define MyAppPublisher "WoodStream Networks Tomokazu Kizawa"
 #define MyAppURL "https://windows-podcast.com/plaza/"
 #define MyAppExeName "WoodStreamPlaza.exe"
+
+#ifndef TargetArch
+  #define TargetArch "x64"
+#endif
+
+#if TargetArch == "arm64"
+  #define ArchFolder "win-arm64"
+  #define ArchInstallMode "arm64"
+  #define ArchAllowed "arm64"
+#else
+  #define ArchFolder "win-x64"
+  #define ArchInstallMode "x64compatible"
+  #define ArchAllowed "x64compatible"
+#endif
 
 [Setup]
 AppId={{D97D8BF4-7C91-44E2-8113-E0CA2962C24B}
@@ -17,12 +31,13 @@ DefaultDirName={autopf}\WoodStreamPlaza
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=..\..\Installer
-OutputBaseFilename=WoodStreamPlaza_Setup_{#MyAppVersion}
+OutputBaseFilename=WoodStreamPlaza_Setup_{#MyAppVersion}_{#TargetArch}
 SetupIconFile=..\..\app.ico
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed={#ArchAllowed}
+ArchitecturesInstallIn64BitMode={#ArchInstallMode}
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
 
@@ -34,7 +49,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\..\publish\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\publish\{#ArchFolder}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\app.ico"
