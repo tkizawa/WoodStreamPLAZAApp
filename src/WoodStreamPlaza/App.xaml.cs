@@ -17,6 +17,9 @@ public partial class App : WpfApplication
         Logger.Info("Application OnStartup started.");
         base.OnStartup(e);
 
+        // GPU/DirectXドライバやマルチモニターの競合によるウィンドウ透明化・非表示バグを回避
+        System.Windows.Media.RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
+
         // 未処理例外ハンドリング
         AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
         {

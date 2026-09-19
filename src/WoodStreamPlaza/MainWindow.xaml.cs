@@ -31,6 +31,21 @@ public partial class MainWindow : Window
         Logger.Info("MainWindow constructor completed.");
     }
 
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+
+    private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+    private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+    private const uint SWP_NOSIZE = 0x0001;
+    private const uint SWP_NOMOVE = 0x0002;
+    private const uint SWP_SHOWWINDOW = 0x0040;
+
     /// <summary>
     /// ウィンドウロード時：WebView2環境の初期化とページ読み込み
     /// </summary>
@@ -38,6 +53,25 @@ public partial class MainWindow : Window
     {
         Logger.Info($"MainWindow_Loaded event fired. Left={Left}, Top={Top}, Width={ActualWidth}, Height={ActualHeight}, Visibility={Visibility}, WindowState={WindowState}");
         
+        // 仮想デスクトップやバックグラウンドから強制的に現在のデスクトップの最前面へ呼び出し
+        try
+        {
+            var helper = new System.Windows.Interop.WindowInteropHelper(this);
+            IntPtr hwnd = helper.Handle;
+            if (hwnd != IntPtr.Zero)
+            {
+                SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                SetForegroundWindow(hwnd);
+                SwitchToThisWindow(hwnd, true);
+                Logger.Info("Win32 SwitchToThisWindow and Topmost sequence applied.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Info($"Failed to apply Win32 window focus: {ex.Message}");
+        }
+
         Activate();
         Focus();
 
@@ -138,6 +172,7 @@ public partial class MainWindow : Window
 
     /// <summary>
     /// 終了時のウィンドウ位置およびサイズを復元します。
+    /// マルチモニターや仮想デスクトップでの画面外表示を防ぎ、確実に画面内に配置します。
     /// </summary>
     private void RestoreWindowBounds()
     {
@@ -148,9 +183,26 @@ public partial class MainWindow : Window
         Width = (settings.WindowWidth >= MinWidth) ? settings.WindowWidth : 1200;
         Height = (settings.WindowHeight >= MinHeight) ? settings.WindowHeight : 800;
 
-        // 画面中央に配置
-        WindowStartupLocation = WindowStartupLocation.CenterScreen;
+        // マルチモニター環境（隙間やオフスクリーン）を考慮し、メインディスプレイの作業領域内に確実に収める
+        double workWidth = SystemParameters.WorkArea.Width;
+        double workHeight = SystemParameters.WorkArea.Height;
+
+        if (settings.WindowLeft.HasValue && settings.WindowTop.HasValue &&
+            settings.WindowLeft.Value >= 0 && settings.WindowLeft.Value + 100 < workWidth &&
+            settings.WindowTop.Value >= 0 && settings.WindowTop.Value + 100 < workHeight)
+        {
+            Left = settings.WindowLeft.Value;
+            Top = settings.WindowTop.Value;
+        }
+        else
+        {
+            // メイン画面の作業領域中央に明示的に配置
+            Left = Math.Max(0, (workWidth - Width) / 2);
+            Top = Math.Max(0, (workHeight - Height) / 2);
+        }
+
         WindowState = WindowState.Normal;
+        Logger.Info($"Window placed at Left={Left}, Top={Top}, Width={Width}, Height={Height}");
     }
 
     /// <summary>
