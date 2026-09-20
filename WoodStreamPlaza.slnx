@@ -1,7 +1,5 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/WoodStreamPlaza/WoodStreamPlaza.csproj" />
-  </Folder>
+  <Project Path="WoodStreamPlaza.csproj" />
   <Folder Name="/tests/">
     <Project Path="tests/WoodStreamPlaza.Tests/WoodStreamPlaza.Tests.csproj" />
   </Folder>

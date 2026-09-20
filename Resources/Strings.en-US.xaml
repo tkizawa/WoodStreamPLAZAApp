@@ -38,6 +38,8 @@
     <sys:String x:Key="Settings_Behavior">Window &amp; Background Behavior</sys:String>
     <sys:String x:Key="Settings_MinimizeToTray">Minimize to system tray on window minimize</sys:String>
     <sys:String x:Key="Settings_CloseToTray">Keep in system tray when closing window</sys:String>
+    <sys:String x:Key="Settings_AutoStart">Start automatically on Windows startup</sys:String>
+    <sys:String x:Key="Settings_StartMinimized">Start minimized to system tray</sys:String>
     <sys:String x:Key="Settings_ShowNavBar">Show top quick navigation bar</sys:String>
     <sys:String x:Key="Settings_EnableNotifications">Show desktop toast notifications for new activity</sys:String>
     <sys:String x:Key="Settings_ClearCache">Cache Management</sys:String>

@@ -65,7 +65,7 @@ dotnet build
 
 ### 実行
 ```bash
-dotnet run --project src/WoodStreamPlaza
+dotnet run
 ```
 
 ### 単体テストの実行
@@ -93,27 +93,35 @@ pwsh -ExecutionPolicy Bypass -File packaging/msix/build_msix.ps1 -Version 1.0.0.
 ```
 WoodStreamPLAZAApp/
 ├── WoodStreamPlaza.slnx              # ソリューション定義
+├── WoodStreamPlaza.csproj            # プロジェクト定義 (.NET 10 WPF)
 ├── app.ico / icon.png               # アプリケーションアイコン
-├── src/
-│   └── WoodStreamPlaza/
-│       ├── App.xaml / App.xaml.cs    # アプリケーションエントリ・ライフサイクル
-│       ├── MainWindow.xaml / .cs    # メインウィンドウ・WebView2制御・トレイ連携
-│       ├── SettingsWindow.xaml / .cs# 設定画面（言語・常駐・通知・キャッシュ）
-│       ├── Models/
-│       │   └── AppSettings.cs       # アプリ設定データモデル
-│       ├── Services/
-│       │   ├── NotificationService.cs # Windowsトースト通知制御
-│       │   ├── TrayIconService.cs     # タスクトレイ常駐管理 (NotifyIcon)
-│       │   ├── TaskbarBadgeHelper.cs  # タスクバー未読バッジ生成
-│       │   ├── LocalizationService.cs # 多言語リソース適用
-│       │   ├── SettingsService.cs     # 設定ファイル保存・復元 (UTF-8)
-│       │   └── Logger.cs              # アプリケーションログ出力
-│       └── Resources/
-│           ├── Strings.ja-JP.xaml   # 日本語リソース
-│           └── Strings.en-US.xaml   # 英語リソース
+├── App.xaml / App.xaml.cs            # アプリケーションエントリ・ライフサイクル
+├── MainWindow.xaml / .cs            # メインウィンドウ・WebView2制御・トレイ連携
+├── SettingsWindow.xaml / .cs        # 設定画面（言語・自動起動・最小化・常駐・通知）
+├── HelpWindow.xaml / .cs            # 操作説明画面
+├── Models/
+│   └── AppSettings.cs               # アプリ設定データモデル
+├── Services/
+│   ├── NotificationService.cs       # Windowsトースト通知制御
+│   ├── TrayIconService.cs           # タスクトレイ常駐管理 (NotifyIcon)
+│   ├── StartupService.cs            # スタートアップ自動起動管理 (レジストリ)
+│   ├── TaskbarBadgeHelper.cs        # タスクバー未読バッジ生成
+│   ├── LocalizationService.cs       # 多言語リソース適用
+│   ├── SettingsService.cs           # 設定ファイル保存・復元 (UTF-8)
+│   └── Logger.cs                    # アプリケーションログ出力
+├── Resources/
+│   ├── Strings.ja-JP.xaml           # 日本語リソース
+│   └── Strings.en-US.xaml           # 英語リソース
+├── packaging/                       # インストーラ・MSIXパッケージングスクリプト
 └── tests/
-    └── WoodStreamPlaza.Tests/       # 単体テスト (設定・通知パース・バッジ生成)
+    └── WoodStreamPlaza.Tests/       # 単体テスト (設定・通知パース・バッジ・スタートアップ)
 ```
+
+---
+
+## 📝 変更来歴 (Changelog)
+
+各バージョンの詳細な変更内容については [CHANGELOG.md](CHANGELOG.md) をご覧ください。
 
 ---
 

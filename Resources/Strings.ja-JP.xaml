@@ -38,6 +38,8 @@
     <sys:String x:Key="Settings_Behavior">ウィンドウと常駐の動作</sys:String>
     <sys:String x:Key="Settings_MinimizeToTray">ウィンドウ最小化時にタスクトレイに格納する</sys:String>
     <sys:String x:Key="Settings_CloseToTray">「閉じる」ボタンで終了せずタスクトレイに常駐する</sys:String>
+    <sys:String x:Key="Settings_AutoStart">Windows起動時に自動起動する</sys:String>
+    <sys:String x:Key="Settings_StartMinimized">起動時に最小化（タスクトレイに格納）して開始する</sys:String>
     <sys:String x:Key="Settings_ShowNavBar">上部クイックナビゲーションバーを表示する</sys:String>
     <sys:String x:Key="Settings_EnableNotifications">新着通知（返信・メンション・いいね等）をトースト表示する</sys:String>
     <sys:String x:Key="Settings_ClearCache">キャッシュ管理</sys:String>

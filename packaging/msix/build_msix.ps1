@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "1.0.0.0",
+    [string]$Version = "1.0.0.1",
     [string]$PackageName = "57742TomokazuKizawa.WoodStreamPLAZA",
     [string]$Publisher = "CN=963B8572-7B10-48CC-9F90-46F0022D6A68",
     [string]$PublisherDisplayName = "Tomokazu Kizawa",
@@ -61,8 +61,7 @@ foreach ($arch in $architectures) {
     Write-Host "`n--- Packaging MSIX for $arch ---" -ForegroundColor Cyan
     $publishDir = [System.IO.Path]::Combine($rootDir, "publish\win-$arch")
     
-    Write-Host "Publishing win-$arch (Version: $Version)..."
-    dotnet publish "$rootDir\src\WoodStreamPlaza\WoodStreamPlaza.csproj" -c Release -r "win-$arch" --self-contained false -p:Version=$Version -p:FileVersion=$Version -p:AssemblyVersion=$Version -p:UseSharedCompilation=false -o $publishDir
+    dotnet publish "$rootDir\WoodStreamPlaza.csproj" -c Release -r "win-$arch" --self-contained false -p:Version=$Version -p:FileVersion=$Version -p:AssemblyVersion=$Version -p:UseSharedCompilation=false -o $publishDir
     if ($LASTEXITCODE -ne 0) {
         throw "dotnet publish failed for $arch."
     }

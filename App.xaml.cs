@@ -40,14 +40,42 @@ public partial class App : WpfApplication
         LocalizationService.Instance.ApplyLanguage(settings.Language);
         Logger.Info("Language applied.");
 
-        // メインウィンドウの明示的生成と表示（確実な表示を保証）
+        // 起動時最小化（タスクトレイ格納）の判定（コマンドライン引数または設定値）
+        bool startMinimized = settings.StartMinimized;
+        if (e.Args != null && e.Args.Length > 0)
+        {
+            foreach (var arg in e.Args)
+            {
+                if (string.Equals(arg, "--minimized", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(arg, "-minimized", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(arg, "/minimized", StringComparison.OrdinalIgnoreCase))
+                {
+                    startMinimized = true;
+                    Logger.Info("Started with --minimized command line argument.");
+                    break;
+                }
+            }
+        }
+
+        // メインウィンドウの明示的生成と表示
         try
         {
-            var mainWindow = new MainWindow();
+            var mainWindow = new MainWindow(startMinimized);
             MainWindow = mainWindow;
-            mainWindow.Show();
-            mainWindow.Activate();
-            Logger.Info("MainWindow shown and activated successfully.");
+
+            if (startMinimized)
+            {
+                mainWindow.WindowState = WindowState.Minimized;
+                mainWindow.Show();
+                mainWindow.Hide();
+                Logger.Info("MainWindow initialized and running in minimized (tray) mode.");
+            }
+            else
+            {
+                mainWindow.Show();
+                mainWindow.Activate();
+                Logger.Info("MainWindow shown and activated successfully.");
+            }
         }
         catch (Exception ex)
         {

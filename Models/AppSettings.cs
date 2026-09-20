@@ -61,4 +61,14 @@ public class AppSettings
     /// 新着通知（返信・メンション・いいね等）をWindowsトースト通知で表示するかどうか
     /// </summary>
     public bool EnableNotifications { get; set; } = true;
+
+    /// <summary>
+    /// Windows起動時に自動起動するかどうか
+    /// </summary>
+    public bool AutoStart { get; set; } = false;
+
+    /// <summary>
+    /// 起動時に最小化（タスクトレイに格納）して開始するかどうか
+    /// </summary>
+    public bool StartMinimized { get; set; } = false;
 }

@@ -61,4 +61,26 @@ public class SettingsTests
         Assert.Equal(768, reloaded.WindowHeight);
         Assert.Equal(WindowState.Normal, reloaded.WindowState);
     }
+
+    [Fact]
+    public void AutoStartAndStartMinimized_ShouldBeSavedAndRestoredProperly()
+    {
+        var service = SettingsService.Instance;
+        service.CurrentSettings.AutoStart = true;
+        service.CurrentSettings.StartMinimized = true;
+        service.Save();
+
+        var reloaded = service.Load();
+        Assert.True(reloaded.AutoStart);
+        Assert.True(reloaded.StartMinimized);
+
+        // リセット
+        service.CurrentSettings.AutoStart = false;
+        service.CurrentSettings.StartMinimized = false;
+        service.Save();
+
+        reloaded = service.Load();
+        Assert.False(reloaded.AutoStart);
+        Assert.False(reloaded.StartMinimized);
+    }
 }

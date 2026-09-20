@@ -14,12 +14,14 @@ namespace WoodStreamPlaza;
 public partial class MainWindow : Window
 {
     private readonly TrayIconService _trayIconService = new();
+    private readonly bool _startMinimized;
     private bool _isExplicitExit = false;
     private System.Windows.Threading.DispatcherTimer? _backgroundPollingTimer;
 
-    public MainWindow()
+    public MainWindow(bool startMinimized = false)
     {
-        Logger.Info("MainWindow constructor starting.");
+        _startMinimized = startMinimized;
+        Logger.Info($"MainWindow constructor starting. startMinimized={startMinimized}");
         InitializeComponent();
 
         // 終了時ウィンドウ位置およびサイズの復元 (グローバル規約)
@@ -81,10 +83,20 @@ public partial class MainWindow : Window
     /// </summary>
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        Logger.Info($"MainWindow_Loaded event fired. Left={Left}, Top={Top}, Width={ActualWidth}, Height={ActualHeight}, Visibility={Visibility}, WindowState={WindowState}");
+        Logger.Info($"MainWindow_Loaded event fired. Left={Left}, Top={Top}, Width={ActualWidth}, Height={ActualHeight}, Visibility={Visibility}, WindowState={WindowState}, startMinimized={_startMinimized}");
         
-        // 最前面復元
-        RestoreAndActivate();
+        if (!_startMinimized)
+        {
+            // 最前面復元
+            RestoreAndActivate();
+        }
+        else
+        {
+            // 起動時最小化：タスクトレイに格納
+            WindowState = WindowState.Minimized;
+            Hide();
+            Logger.Info("MainWindow hidden to system tray on start.");
+        }
 
         await InitializeWebViewAsync();
     }

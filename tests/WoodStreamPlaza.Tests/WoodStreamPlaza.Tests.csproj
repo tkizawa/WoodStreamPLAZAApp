@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\WoodStreamPlaza\WoodStreamPlaza.csproj" />
+    <ProjectReference Include="..\..\WoodStreamPlaza.csproj" />
   </ItemGroup>
 
 </Project>

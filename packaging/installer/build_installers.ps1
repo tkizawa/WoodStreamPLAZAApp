@@ -4,7 +4,7 @@
 $ErrorActionPreference = "Stop"
 
 $RootDir = Resolve-Path "$PSScriptRoot\..\.."
-$ProjectFile = "$RootDir\src\WoodStreamPlaza\WoodStreamPlaza.csproj"
+$ProjectFile = "$RootDir\WoodStreamPlaza.csproj"
 $IssFile = "$RootDir\packaging\installer\setup.iss"
 
 # ISCC (Inno Setup Compiler) の探索

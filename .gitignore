@@ -19,3 +19,5 @@ obj/
 *.log
 *.tmp
 TestResults/
+packaging/msix/verify_*/
+

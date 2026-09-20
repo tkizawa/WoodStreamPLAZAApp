@@ -50,6 +50,8 @@ public partial class SettingsWindow : Window
         // 動作チェックボックス
         MinimizeToTrayCheckBox.IsChecked = settings.MinimizeToTray;
         CloseToTrayCheckBox.IsChecked = settings.CloseToTray;
+        AutoStartCheckBox.IsChecked = settings.AutoStart || StartupService.IsAutoStartEnabled();
+        StartMinimizedCheckBox.IsChecked = settings.StartMinimized;
         EnableNotificationsCheckBox.IsChecked = settings.EnableNotifications;
         ShowNavBarCheckBox.IsChecked = settings.ShowNavigationBar;
     }
@@ -75,8 +77,13 @@ public partial class SettingsWindow : Window
 
         settings.MinimizeToTray = MinimizeToTrayCheckBox.IsChecked ?? false;
         settings.CloseToTray = CloseToTrayCheckBox.IsChecked ?? false;
+        settings.AutoStart = AutoStartCheckBox.IsChecked ?? false;
+        settings.StartMinimized = StartMinimizedCheckBox.IsChecked ?? false;
         settings.EnableNotifications = EnableNotificationsCheckBox.IsChecked ?? true;
         settings.ShowNavigationBar = ShowNavBarCheckBox.IsChecked ?? true;
+
+        // Windowsスタートアップ登録の同期
+        StartupService.SetAutoStart(settings.AutoStart, settings.StartMinimized);
 
         SettingsService.Instance.Save();
         DialogResult = true;
