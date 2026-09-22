@@ -21,7 +21,7 @@ public partial class HelpWindow : Window
         }
         else
         {
-            VersionTextBlock.Text = "Version 1.0.0.2";
+            VersionTextBlock.Text = "Version 1.0.0.3";
         }
     }
 

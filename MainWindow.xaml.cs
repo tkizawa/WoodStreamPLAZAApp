@@ -197,6 +197,7 @@ public partial class MainWindow : Window
                 {
                     Logger.Info("CoreWebView2InitializationCompleted: Success!");
                     MainWebView.CoreWebView2.Settings.IsStatusBarEnabled = false;
+                    MainWebView.CoreWebView2.Settings.AreDevToolsEnabled = true;
 
                     // 通知のアクセス許可要求を自動許可
                     MainWebView.CoreWebView2.PermissionRequested += (sender, pArgs) =>
@@ -563,9 +564,24 @@ public partial class MainWindow : Window
         if (MainWebView.CanGoForward) MainWebView.GoForward();
     }
 
-    private void ReloadButton_Click(object sender, RoutedEventArgs e)
+    private async void ReloadButton_Click(object sender, RoutedEventArgs e)
     {
-        MainWebView.Reload();
+        if (MainWebView.CoreWebView2 != null)
+        {
+            try
+            {
+                // キャッシュを無視して最新のWebリソース（HTML/JS/CSS）を強制再取得（スーパーリロード / Ctrl+F5 相当）
+                await MainWebView.CoreWebView2.CallDevToolsProtocolMethodAsync("Page.reload", "{\"ignoreCache\":true}");
+            }
+            catch
+            {
+                MainWebView.Reload();
+            }
+        }
+        else
+        {
+            MainWebView.Reload();
+        }
     }
 
     private void HomeButton_Click(object sender, RoutedEventArgs e)
@@ -578,6 +594,8 @@ public partial class MainWindow : Window
     private async void SwitchRoom(string roomId)
     {
         if (MainWebView.CoreWebView2 == null) return;
+
+        string floor = (roomId == "entertainment" || roomId == "gourmet" || roomId == "ai_art") ? "annex" : "main";
 
         // ルーム切り替えスクリプト: ルームボタンをクリック、または親フロアタブを開いた上でクリック
         string script = $@"
@@ -598,9 +616,13 @@ public partial class MainWindow : Window
                         }}
                     }}
                     targetBtn.click();
-                    return true;
                 }}
-                window.location.hash = '#room={roomId}';
+
+                // サイト正規ハッシュ形式 (#main/links, #annex/entertainment 等) を設定して確実に同期
+                const targetHash = '#{floor}/{roomId}';
+                if (window.location.hash !== targetHash) {{
+                    window.location.hash = targetHash;
+                }}
                 return true;
             }})();
         ";
@@ -610,7 +632,7 @@ public partial class MainWindow : Window
             string result = await MainWebView.ExecuteScriptAsync(script);
             if (result == "false" || result == "null")
             {
-                MainWebView.Source = new Uri("https://windows-podcast.com/plaza/#room=" + roomId);
+                MainWebView.Source = new Uri($"https://windows-podcast.com/plaza/#{floor}/{roomId}");
             }
         }
         catch (Exception ex)

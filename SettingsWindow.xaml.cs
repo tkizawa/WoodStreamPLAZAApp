@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using WoodStreamPlaza.Services;
 using WpfMessageBox = System.Windows.MessageBox;
@@ -109,7 +110,11 @@ public partial class SettingsWindow : Window
             try
             {
                 ClearCacheButton.IsEnabled = false;
-                await _webView.CoreWebView2.Profile.ClearBrowsingDataAsync();
+                // ログインCookieを維持しつつ、Webリソースのディスクキャッシュを完全に破棄
+                await _webView.CoreWebView2.Profile.ClearBrowsingDataAsync(
+                    CoreWebView2BrowsingDataKinds.DiskCache |
+                    CoreWebView2BrowsingDataKinds.CacheStorage |
+                    CoreWebView2BrowsingDataKinds.ServiceWorkers);
 
                 string doneMessage = LocalizationService.Instance.GetString("Settings_ClearCache_Done");
                 WpfMessageBox.Show(this, doneMessage, "WoodStream PLAZA", MessageBoxButton.OK, MessageBoxImage.Information);

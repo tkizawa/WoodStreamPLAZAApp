@@ -1,5 +1,5 @@
 param(
-    [string]$Version = "1.0.0.2",
+    [string]$Version = "1.0.0.3",
     [string]$PackageName = "57742TomokazuKizawa.WoodStreamPLAZA",
     [string]$Publisher = "CN=963B8572-7B10-48CC-9F90-46F0022D6A68",
     [string]$PublisherDisplayName = "Tomokazu Kizawa",
