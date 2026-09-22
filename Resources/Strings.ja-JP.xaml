@@ -11,6 +11,7 @@
     <sys:String x:Key="Nav_Notice">📢 お知らせ</sys:String>
     <sys:String x:Key="Nav_Lounge">🛋️ ラウンジ</sys:String>
     <sys:String x:Key="Nav_Episodes">📻 番組感想</sys:String>
+    <sys:String x:Key="Nav_Links">🔗 関連リンク</sys:String>
     <sys:String x:Key="Nav_Entertainment">📺 エンタメ</sys:String>
     <sys:String x:Key="Nav_Gourmet">🍜 食テロ・日常</sys:String>
     <sys:String x:Key="Nav_AiArt">🎨 AI生成画像</sys:String>

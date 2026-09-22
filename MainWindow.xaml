@@ -45,7 +45,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,16,0">
                     <TextBlock Text="WoodStream PLAZA" FontSize="15" FontWeight="Bold" Foreground="#1E293B" VerticalAlignment="Center" />
                     <Border Background="#EEF2F6" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="10" Padding="6,1" Margin="8,0,0,0" VerticalAlignment="Center">
-                        <TextBlock x:Name="AppVersionTextBlock" Text="v1.0.0.1" FontSize="10" FontWeight="SemiBold" Foreground="#2563EB" />
+                        <TextBlock x:Name="AppVersionTextBlock" Text="v1.0.0.2" FontSize="10" FontWeight="SemiBold" Foreground="#2563EB" />
                     </Border>
                 </StackPanel>
 
@@ -63,7 +63,8 @@
                         <TextBlock Text="本館:" VerticalAlignment="Center" FontSize="11" Foreground="#64748B" FontWeight="Bold" Margin="4,0,6,0" />
                         <Button Content="{DynamicResource Nav_Notice}" Margin="0,0,4,0" Style="{StaticResource RoomButtonStyle}" Click="RoomNotice_Click" />
                         <Button Content="{DynamicResource Nav_Lounge}" Margin="0,0,4,0" Style="{StaticResource RoomButtonStyle}" Click="RoomLounge_Click" />
-                        <Button Content="{DynamicResource Nav_Episodes}" Margin="0,0,8,0" Style="{StaticResource RoomButtonStyle}" Click="RoomEpisodes_Click" />
+                        <Button Content="{DynamicResource Nav_Episodes}" Margin="0,0,4,0" Style="{StaticResource RoomButtonStyle}" Click="RoomEpisodes_Click" />
+                        <Button Content="{DynamicResource Nav_Links}" Margin="0,0,8,0" Style="{StaticResource RoomButtonStyle}" Click="RoomLinks_Click" />
 
                         <TextBlock Text="別館:" VerticalAlignment="Center" FontSize="11" Foreground="#64748B" FontWeight="Bold" Margin="4,0,6,0" />
                         <Button Content="{DynamicResource Nav_Entertainment}" Margin="0,0,4,0" Style="{StaticResource RoomButtonStyle}" Click="RoomEntertainment_Click" />

@@ -11,6 +11,7 @@
     <sys:String x:Key="Nav_Notice">📢 Announcements</sys:String>
     <sys:String x:Key="Nav_Lounge">🛋️ Lounge</sys:String>
     <sys:String x:Key="Nav_Episodes">📻 Episodes</sys:String>
+    <sys:String x:Key="Nav_Links">🔗 Links</sys:String>
     <sys:String x:Key="Nav_Entertainment">📺 Entertainment</sys:String>
     <sys:String x:Key="Nav_Gourmet">🍜 Gourmet &amp; Life</sys:String>
     <sys:String x:Key="Nav_AiArt">🎨 AI Arts</sys:String>

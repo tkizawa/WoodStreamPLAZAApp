@@ -579,14 +579,29 @@ public partial class MainWindow : Window
     {
         if (MainWebView.CoreWebView2 == null) return;
 
+        // ルーム切り替えスクリプト: ルームボタンをクリック、または親フロアタブを開いた上でクリック
         string script = $@"
             (() => {{
                 const targetBtn = document.querySelector('[data-room=""{roomId}""]');
                 if (targetBtn) {{
+                    const inMain = targetBtn.closest('#roomsFloorMain');
+                    const inAnnex = targetBtn.closest('#roomsFloorAnnex');
+                    if (inMain) {{
+                        const mainTab = document.getElementById('tabFloorMain');
+                        if (mainTab && mainTab.getAttribute('aria-selected') !== 'true') {{
+                            mainTab.click();
+                        }}
+                    }} else if (inAnnex) {{
+                        const annexTab = document.getElementById('tabFloorAnnex');
+                        if (annexTab && annexTab.getAttribute('aria-selected') !== 'true') {{
+                            annexTab.click();
+                        }}
+                    }}
                     targetBtn.click();
                     return true;
                 }}
-                return false;
+                window.location.hash = '#room={roomId}';
+                return true;
             }})();
         ";
 
@@ -595,7 +610,7 @@ public partial class MainWindow : Window
             string result = await MainWebView.ExecuteScriptAsync(script);
             if (result == "false" || result == "null")
             {
-                MainWebView.Source = new Uri("https://windows-podcast.com/plaza/");
+                MainWebView.Source = new Uri("https://windows-podcast.com/plaza/#room=" + roomId);
             }
         }
         catch (Exception ex)
@@ -607,6 +622,7 @@ public partial class MainWindow : Window
     private void RoomNotice_Click(object sender, RoutedEventArgs e) => SwitchRoom("notice");
     private void RoomLounge_Click(object sender, RoutedEventArgs e) => SwitchRoom("lounge");
     private void RoomEpisodes_Click(object sender, RoutedEventArgs e) => SwitchRoom("episodes");
+    private void RoomLinks_Click(object sender, RoutedEventArgs e) => SwitchRoom("links");
     private void RoomEntertainment_Click(object sender, RoutedEventArgs e) => SwitchRoom("entertainment");
     private void RoomGourmet_Click(object sender, RoutedEventArgs e) => SwitchRoom("gourmet");
     private void RoomAiArt_Click(object sender, RoutedEventArgs e) => SwitchRoom("ai_art");
