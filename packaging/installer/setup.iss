@@ -1,6 +1,6 @@
 ; Inno Setup Script for WoodStream PLAZA Desktop Client
 #define MyAppName "WoodStream PLAZA"
-#define MyAppVersion "1.0.0.3"
+#define MyAppVersion "1.0.0.5"
 #define MyAppPublisher "WoodStream Networks Tomokazu Kizawa"
 #define MyAppURL "https://windows-podcast.com/plaza/"
 #define MyAppExeName "WoodStreamPlaza.exe"
